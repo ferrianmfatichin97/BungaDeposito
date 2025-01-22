@@ -1,4 +1,4 @@
-<p align="center"><a href="https://bankdptaspen.co.id/" target="_blank"><img src="https://bankdptaspen.co.id/logo.png" width="400" alt="Bank BPR DP Taspen Logo"></a></p>
+<p align="center"><a href="https://bankdptaspen.co.id/" target="_blank"><img src="https://bankdptaspen.co.id/wp-content/uploads/2024/01/Logo-Bank-DP-Taspen-Version-New.png" width="400" alt="Bank BPR DP Taspen Logo"></a></p>
 
 <p align="center">
 <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
