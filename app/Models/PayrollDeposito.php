@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PayrollDeposito extends Model
 {
@@ -38,6 +39,7 @@ class PayrollDeposito extends Model
         'adjust12',
         'adjust13',
     ];
+
     const DEFAULT_CURRENCY = 'IDR';
     const DEFAULT_EMAIL = 'bprtaspen@gmail.com';
     const DEFAULT_IBUOBU = 'IBU';
@@ -102,7 +104,6 @@ class PayrollDeposito extends Model
                 "PERMATA" => "BBBAIDJA",
                 "SINARMAS" => "SBJKIDJA",
                 "BCA" => "CENAIDJA",
-
                 // Tambahkan bank lain sesuai kebutuhan
             ];
 

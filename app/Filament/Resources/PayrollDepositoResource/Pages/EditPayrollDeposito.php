@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\PayrollDepositoResource\Pages;
 
+use App\Events\UserActivityLogged;
 use App\Filament\Resources\PayrollDepositoResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EditPayrollDeposito extends EditRecord
 {
@@ -16,4 +20,13 @@ class EditPayrollDeposito extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function afterSave(): void
+{
+    $recordId = $this->record->id;
+
+    Event::dispatch(new UserActivityLogged('update', Auth::id(),   $recordId));
+
+    Log::info('User dengan ID: ' . Auth::id() . ' Telah Mengedit Data Payroll Deposito dengan ID: ' . $recordId);
+}
 }

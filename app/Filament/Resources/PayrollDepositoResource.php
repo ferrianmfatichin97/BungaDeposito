@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Events\UserActivityLogged;
 use App\Exports\PayrollBIFASTBRIExport;
 use App\Exports\PayrollBNIExport;
 use App\Exports\PayrollBRIExport;
@@ -10,22 +11,25 @@ use App\Filament\Resources\PayrollDepositoResource\Pages;
 use App\Models\PayrollDeposito;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\Alignment;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Event;
 use Maatwebsite\Excel\Facades\Excel;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Notifications\Notification;
-use Filament\Support\Enums\Alignment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PayrollDepositoResource extends Resource
 {
@@ -74,7 +78,7 @@ class PayrollDepositoResource extends Resource
                         "AKTIF" => 'heroicon-o-check-circle',
                         "TIDAK AKTIF" => 'heroicon-o-x-circle',
                     })
-                    ->color(fn (string $state): string => match ($state) {
+                    ->color(fn(string $state): string => match ($state) {
                         'AKTIF' => 'success',
                         'TIDAK AKTIF' => 'danger',
                         default => 'gray',
@@ -126,8 +130,22 @@ class PayrollDepositoResource extends Resource
             ->actions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make(),
-                    DeleteAction::make(),
+                    EditAction::make()
+                    ->before(function () {
+                            Event::dispatch(new UserActivityLogged('update', Auth::id(), 'PayrollDeposito'));
+                            log::info('ini log aftersave' . Auth::id());
+                        }),
+                    DeleteAction::make()
+                        ->action(function (Collection $records) {
+                            foreach ($records as $record) {
+                                Event::dispatch(new UserActivityLogged('delete', auth::id(), 'PayrollDeposito'));
+                                $record->delete();
+                            }
+                            Notification::make()
+                                ->title('Records deleted successfully!')
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ])
             ->bulkActions([
@@ -183,41 +201,7 @@ class PayrollDepositoResource extends Resource
                         })
                         ->requiresConfirmation()
                         ->modalHeading('Update Remark'),
-                        //Start
-                        // Tables\Actions\BulkAction::make('Update Kode Bank')
-                        // ->icon('heroicon-m-pencil-square')
-                        // ->form([
-                        //     Forms\Components\Select::make('kodebank_value')
-                        //         ->label('Select kode bank')
-                        //         ->searchable()
-                        //         ->options([
-                        //             'BKKBIDJA' => 'BANGKOK BANK PUBLIC CO.LTD',
-                        //             'BIDXIDJA' => 'BANK INDEX SELINDO',
-                        //             'INDOIDJA'    => 'BANK INDONESIA',
-                        //             'SYJTIDJ1'    => 'BANK JATIM UNIT USAHA SYARIAH',
-                        //             'BOFAID2X'    => 'BANK OF AMERICA NA',
-                        //             'BKCHIDJA'    => 'BANK OF CHINA (HONG KONG) LIMITED',
-                        //             'CITIIDJX'    => 'CITIBANK, NA',
-                        //             'DEUTIDJA'    => 'DEUTSCHE BANK AG.',
-                        //             'CHASIDJX'    => 'KC JPMORGAN CHASE BANK, N.A',
-                        //             'BOTKIDJX'    => 'MUFG Bank, Ltd.',
-                        //             'NETBIDJA'    => 'PT BANK ALADIN SYARIAH TBK',
-                        //             'NETBIDJA'    => 'PT BANK ALADIN SYARIAH TBK',
-                        //         ])
-                        //         ->required(),
-                        // ])
-                        // ->action(function (array $data, Collection $records) {
-                        //     foreach ($records as $record) {
-                        //         $record->update(['kode_bank' => $data['kodebank_value']]);
-                        //     }
-                        //     Notification::make()
-                        //         ->title('Kode Bank updated successfully!')
-                        //         ->success()
-                        //         ->send();
-                        // })
-                        // ->requiresConfirmation()
-                        // ->modalHeading('Update Kode Bank'),
-                        //End
+
                     Tables\Actions\BulkAction::make('export')
                         ->label('Format Mandiri')
                         ->icon('heroicon-o-document-arrow-down')

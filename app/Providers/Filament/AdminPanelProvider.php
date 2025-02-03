@@ -41,12 +41,13 @@ class AdminPanelProvider extends PanelProvider
             ->defaultThemeMode(ThemeMode::Light)
             ->brandName('Bunga Deposito')
             ->brandLogo(asset('logo.png'))
+            ->favicon(asset('dp.png'))
             ->colors([
                 //'danger' => Color::Rose,
                 //'gray' => Color::Gray,
-                'info' => Color::Blue,
+                //'info' => Color::Blue,
                 //'primary' => Color::Indigo,
-                //'success' => Color::Emerald,
+                'success' => Color::Emerald,
                 //'warning' => Color::Orange,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

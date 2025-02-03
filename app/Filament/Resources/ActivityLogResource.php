@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class ActivityLogResource extends Resource
 {
@@ -26,7 +27,7 @@ class ActivityLogResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('user_id')->required(),
                 Forms\Components\TextInput::make('action')->required(),
-                Forms\Components\Textarea::make('description'),
+                Forms\Components\Textarea::make('resource'),
             ]);
     }
 
@@ -36,18 +37,18 @@ class ActivityLogResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('user_id'),
                 Tables\Columns\TextColumn::make('action'),
-                Tables\Columns\TextColumn::make('description'),
+                Tables\Columns\TextColumn::make('resource'),
                 Tables\Columns\TextColumn::make('created_at')->dateTime(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                   // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
