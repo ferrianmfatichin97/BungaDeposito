@@ -18,8 +18,7 @@ class CreatePayrollDeposito extends CreateRecord
     {
         parent::afterCreate();
 
-        // Trigger event after creating a new record
-        Event::dispatch(new UserActivityLogged('create', auth::id(), 'PayrollDeposito'));
+        Event::dispatch(new UserActivityLogged('Create', auth::id(), 'PayrollDeposito'));
         log::info('function after create');
     }
 }

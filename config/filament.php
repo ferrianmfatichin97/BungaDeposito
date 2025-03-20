@@ -13,6 +13,26 @@ return [
     | This will allow your users to receive real-time notifications.
     |
     */
+    //Lockscreen Start
+    'icon' => 'heroicon-s-lock-closed',
+    'url' => '/screen/lock',
+    'table_columns' => [
+        'account_username_field' => 'email',
+        'account_password_field' => 'password',
+    ],
+    'enable_redirect_to' => false,
+    'redirect_route' => 'filament.pages.dashboard',
+    'rate_limit' => [
+        'enable_rate_limit' => true,
+        'rate_limit_max_count' => 5, // max count for failure login allowed.
+        'force_logout' => false,
+    ],
+    'segment' => [
+        'specific_path_only' => false, // if false, then all the request will be blocked by the locker and will be redirected to the authentication page
+        'segment_needle' => 1, // see the https://laravel.com/api/9.x/Illuminate/Http/Request.html#method_segment
+        'locked_path' => [], //
+    ],
+    //Lockscreen End
 
     'broadcasting' => [
 

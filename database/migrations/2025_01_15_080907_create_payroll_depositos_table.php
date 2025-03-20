@@ -42,6 +42,7 @@ return new class extends Migration
             $table->string('adjust12')->nullable();
             $table->string('adjust13')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

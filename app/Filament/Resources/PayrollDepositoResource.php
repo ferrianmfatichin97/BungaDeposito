@@ -30,6 +30,9 @@ use Illuminate\Support\Facades\Event;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
 
 class PayrollDepositoResource extends Resource
 {
@@ -62,26 +65,32 @@ class PayrollDepositoResource extends Resource
             ->heading('Tabel Payroll Deposito')
             ->columns([
                 TextColumn::make('norek_deposito')->label('No.Referensi')->searchable(),
-                TextColumn::make('nama_rekening'),
+                TextColumn::make('nama_nasabah'),
                 TextColumn::make('norek_tujuan')->searchable()->copyable()->copyMessage('Berhasil Di Copy'),
                 TextColumn::make('bank_tujuan'),
-                TextColumn::make('kode_bank'),
                 TextColumn::make('nominal')
+                    ->alignment(Alignment::Center)
                     ->formatStateUsing(fn(PayrollDeposito $record): string => 'Rp ' . number_format($record->nominal, 0, '.', '.'))
                     ->summarize(Sum::make()->label('Total')->money('IDR')),
-                TextColumn::make('jatuh_tempo')
+                TextColumn::make('tanggal_bayar')
+                    ->label('Tanggal Bayar')
                     ->alignment(Alignment::Center),
-                TextColumn::make('ibuobu'),
+                TextColumn::make('jatuh_tempo')
+                    ->date()
+                    ->sortable()
+                    ->alignment(Alignment::Center),
+                //TextColumn::make('ibuobu'),
                 IconColumn::make('status')
                     ->alignment(Alignment::Center)
                     ->icon(fn(string $state): string => match ($state) {
-                        "AKTIF" => 'heroicon-o-check-circle',
-                        "TIDAK AKTIF" => 'heroicon-o-x-circle',
+                        "1" => 'heroicon-o-check-circle',
+                        "2" => 'heroicon-o-x-circle',
+                        "3" => 'heroicon-o-x-circle',
                     })
                     ->color(fn(string $state): string => match ($state) {
-                        'AKTIF' => 'success',
-                        'TIDAK AKTIF' => 'danger',
-                        default => 'gray',
+                        '1' => 'success',
+                        '2' => 'danger',
+                        '3' => 'gray',
                     }),
             ])
             ->filters([
@@ -121,24 +130,26 @@ class PayrollDepositoResource extends Resource
                     'MUAMALAT' => 'MUAMALAT',
                     'PANIN BANK' => 'PANIN BANK',
                 ]),
-                SelectFilter::make('jatuh_tempo')->options(array_combine(range(1, 31), range(1, 31))),
-                SelectFilter::make('status')->label(' Status')->options([
+                //SelectFilter::make('jatuh_tempo')->options(array_combine(range(1, 31), range(1, 31))),
+                SelectFilter::make('status')->label('Status')->options([
                     'AKTIF' => 'AKTIF',
                     'TIDAK AKTIF' => 'Tidak Aktif',
+                // SelectFilter::make('norek_tujuan')
+                //         ->label('Norek Tujuan')
+                //         ->options(function () {
+                //             return PayrollDeposito::where('norek_tujuan', '!=', 0)
+                //                 ->pluck('norek_tujuan', 'norek_tujuan');
+                //         }),
                 ]),
             ], layout: FiltersLayout::AboveContent)
             ->actions([
                 ActionGroup::make([
                     ViewAction::make(),
-                    EditAction::make()
-                    ->before(function () {
-                            Event::dispatch(new UserActivityLogged('update', Auth::id(), 'PayrollDeposito'));
-                            log::info('ini log aftersave' . Auth::id());
-                        }),
+                    EditAction::make(),
                     DeleteAction::make()
-                        ->action(function (Collection $records) {
+                        ->after(function (Collection $records) {
                             foreach ($records as $record) {
-                                Event::dispatch(new UserActivityLogged('delete', auth::id(), 'PayrollDeposito'));
+                                Event::dispatch(new UserActivityLogged('Delete', auth::id(), 'PayrollDeposito'));
                                 $record->delete();
                             }
                             Notification::make()
@@ -207,6 +218,7 @@ class PayrollDepositoResource extends Resource
                         ->icon('heroicon-o-document-arrow-down')
                         ->color('primary')
                         ->action(function (Collection $records) {
+                            //dd($records);
                             $date = date('d-m-Y');
                             $fileName = 'Budep_Mandiri_' . $date . '.csv';
                             return Excel::download(new PayrollMandiriExport($records), $fileName);
@@ -232,7 +244,7 @@ class PayrollDepositoResource extends Resource
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
                             $date = date('Ymd');
-                            $fileName = 'Budep_BI-Fast BRI_' . $date . '.csv';
+                            $fileName = 'Budep_BIFast BRI_' . $date . '.csv';
                             return Excel::download(new PayrollBIFASTBRIExport($records), $fileName);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
@@ -244,6 +256,41 @@ class PayrollDepositoResource extends Resource
     {
         return [];
     }
+
+    protected function afterCreate($record): void
+    {
+        $this->checkAndUpdateStatus($record);
+    }
+
+    protected function afterUpdate($record): void
+    {
+        $this->checkAndUpdateStatus($record);
+    }
+
+    protected function checkAndUpdateStatus($record): void
+    {
+        $deposito = $record->deposito;
+
+        if ($deposito && $deposito->dep_tgl_jthtempo->isToday()) {
+            //if ($deposito && $deposito->dep_tgl_jthtempo == '2025-03-01') {
+            $record->status = 'Tidak Aktif';
+            $record->save();
+        }
+        log::info('Berhasil Save' . $record);
+    }
+
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()
+    //         ->withoutGlobalScopes([
+    //             SoftDeletingScope::class,
+    //         ]);
+    // }
+
+    // public static function canViewAny(): bool
+    // {
+    //     return auth()->user()->isUser();
+    // }
 
     public static function getPages(): array
     {

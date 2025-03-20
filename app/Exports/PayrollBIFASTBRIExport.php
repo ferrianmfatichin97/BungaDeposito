@@ -13,6 +13,10 @@ use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Auth;
+use App\Events\UserActivityLogged;
 
 class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents, ShouldAutoSize, WithCustomCsvSettings
 {
@@ -22,6 +26,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     protected string $norek_tujuan_string;
     protected array $empat_digit_terakhir;
     protected int $totalnominal = 0;
+    private $isRegistered = false;
 
     public function __construct(public Collection $records)
     {
@@ -38,9 +43,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
 
     public function columnFormats(): array
     {
-        return [
-
-        ];
+        return [];
     }
 
     public function map($payroll): array
@@ -60,7 +63,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
             number_format($payroll->nominal, 2, '', ''),
             '99',
             $payroll->norek_deposito,
-            'Budep' . date('dm').$this->empat_digit_terakhir[$index - 2],
+            'Budep' . date('dm') . $this->empat_digit_terakhir[$index - 2],
             '',
         ];
     }
@@ -87,7 +90,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $rowCount = count($this->collection()) + 1;
 
                 $event->sheet->setCellValue('A' . ($rowCount + 1), 'DATA');
@@ -101,7 +104,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
 
     protected function ambilEmpatDigitTerakhir(array $norek_deposito): array
     {
-        return array_map(function($rekening) {
+        return array_map(function ($rekening) {
             return empty($rekening) ? '' : substr($rekening, -5);
         }, $norek_deposito);
     }
@@ -131,10 +134,10 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     public function getCsvSettings(): array
     {
         return [
-            'delimiter' => ';', // Set the delimiter
-            'enclosure' => '', // Set enclosure to empty to avoid quotes
-            'use_bom' => true, // Use BOM for UTF-8
-            'output_encoding' => 'UTF-8', // Set output encoding to UTF-8
+            'delimiter' => '|',
+            'enclosure' => '',
+            'use_bom' => true,
+            'output_encoding' => 'UTF-8',
         ];
     }
 }

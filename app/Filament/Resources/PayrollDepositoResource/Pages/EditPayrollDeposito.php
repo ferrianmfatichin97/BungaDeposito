@@ -22,11 +22,11 @@ class EditPayrollDeposito extends EditRecord
     }
 
     protected function afterSave(): void
-{
-    $recordId = $this->record->id;
+    {
+        $recordId = $this->record->id;
 
-    Event::dispatch(new UserActivityLogged('update', Auth::id(),   $recordId));
+        Event::dispatch(new UserActivityLogged('Update', Auth::id(),   $recordId));
 
-    Log::info('User dengan ID: ' . Auth::id() . ' Telah Mengedit Data Payroll Deposito dengan ID: ' . $recordId);
-}
+        Log::info('User dengan ID: ' . Auth::id() . ' Telah Mengedit Data Payroll Deposito dengan ID: ' . $recordId);
+    }
 }

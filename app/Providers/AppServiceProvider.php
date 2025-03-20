@@ -17,7 +17,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Writer::listen(BeforeExport::class, function () {
+        //     //
+        // });
+
+        // Writer::listen(BeforeWriting::class, function () {
+        //     //
+        // });
+
+        // Sheet::listen(BeforeSheet::class, function () {
+        //     //
+        // });
+
+        // Sheet::listen(AfterSheet::class, function () {
+        //     //
+        // });
     }
 
     /**

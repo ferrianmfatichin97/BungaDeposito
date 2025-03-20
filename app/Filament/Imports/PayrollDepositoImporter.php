@@ -6,9 +6,11 @@ use App\Models\PayrollDeposito;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Support\Facades\Auth;
-use App\Models\ActivityLog;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Auth;
+use App\Events\UserActivityLogged;
 
 class PayrollDepositoImporter extends Importer
 {
@@ -29,9 +31,27 @@ class PayrollDepositoImporter extends Importer
     }
 
     public function resolveRecord(): ?PayrollDeposito
-{
-    return new PayrollDeposito();
-}
+    {
+        return new PayrollDeposito();
+    }
+
+    protected function afterSave(): void
+    {
+         // Ensure the record has an ID before proceeding
+    if (!$this->record->id) {
+        Log::warning('Attempted to log user activity, but record ID is missing.');
+        return;
+    }
+
+    $payrollDepositoId = $this->record->id;
+
+    // Dispatch the user activity logged event
+    Event::dispatch(new UserActivityLogged('Import', Auth::id(), $payrollDepositoId));
+
+    // Log the import action
+    Log::info('User  with ID: ' . Auth::id() . ' has imported Payroll Deposito data with ID: ' . $payrollDepositoId);
+
+    }
 
     public static function getCompletedNotificationBody(Import $import): string
     {

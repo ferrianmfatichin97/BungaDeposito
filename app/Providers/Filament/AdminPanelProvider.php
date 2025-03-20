@@ -18,6 +18,9 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Carbon\Carbon;
+use Niladam\FilamentAutoLogout\AutoLogoutPlugin;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -36,6 +39,16 @@ class AdminPanelProvider extends PanelProvider
             // Akses User Admin
             ->login()
             ->passwordReset()
+            ->plugins([
+                ActivitylogPlugin::make()
+                 ->navigationGroup('Menu Admin'),
+                AutoLogoutPlugin::make()
+                    ->color(Color::Emerald)
+                    // ->withoutWarning()
+                    ->logoutAfter(Carbon::SECONDS_PER_MINUTE * 60),
+                    // ->withoutTimeLeft()
+                    // ->timeLeftText('')
+            ])
             //->profile()
             ->profile(isSimple: false)
             ->defaultThemeMode(ThemeMode::Light)

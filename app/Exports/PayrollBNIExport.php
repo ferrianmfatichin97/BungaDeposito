@@ -11,17 +11,22 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Auth;
+use App\Events\UserActivityLogged;
+use Maatwebsite\Excel\Concerns\WithEvents;
 
 
-class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithCustomCsvSettings
+class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithCustomCsvSettings, WithEvents
 {
-    use Exportable;
+    use Exportable, RegistersEventListeners;
 
     protected int $totalCount;
     protected int $norek_tujuan;
     protected int $totalnominal = 0;
-
-
+    private $isRegistered = false;
 
     public function __construct(public Collection $records)
 {
@@ -101,6 +106,34 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
     {
         return $this->totalnominal;
     }
+
+    // public function registerEvents(): array
+    // {
+    //     Log::info('registerEvents function is called');
+
+    //     if ($this->isRegistered) {
+    //         Log::info('Events already registered, returning empty array.');
+    //         return [];
+    //     }
+
+    //     $this->isRegistered = true;
+
+    //     Log::info('registerEvents called from ' . debug_backtrace()[1]['function']);
+    //     $processedIds = [];
+
+    //     if (empty($this->records)) {
+    //         Log::warning('No records found to process.');
+    //     }
+
+    //     foreach ($this->records as $record) {
+    //         if (!in_array($record->id, $processedIds)) {
+    //             Log::info('Dispatching event for record ID: ' . $record->id);
+    //             Event::dispatch(new UserActivityLogged('Export BNI', Auth::id(), $record->id));
+    //             $processedIds[] = $record->id;
+    //         }
+    //     }
+    //     return $processedIds;
+    // }
 
     public function getOptions(): array
     {

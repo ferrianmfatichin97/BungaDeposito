@@ -17,9 +17,14 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomCsvSettings;
 use Maatwebsite\Excel\Concerns\RegistersEventListeners;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Auth;
+use App\Events\UserActivityLogged;
 
 
-class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents, ShouldAutoSize , WithCustomCsvSettings
+
+class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents, ShouldAutoSize, WithCustomCsvSettings
 {
     use Exportable, RegistersEventListeners;
 
@@ -28,6 +33,8 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     protected array $norek_tujuan_array;
     protected array $empat_digit_terakhir;
     protected int $totalnominal = 0;
+    private $isRegistered = false;
+    //private static $records = [];
 
     public function __construct(public Collection $records)
     {
@@ -36,6 +43,8 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
         $this->empat_digit_terakhir = $this->ambilEmpatDigitTerakhir($this->norek_tujuan_array);
         $this->norek_tujuan_string = implode(', ', $this->norek_tujuan_array);
         $this->totalnominal = $this->records->sum('nominal');
+
+        //$md5 = md5($total.$totalnominal.$totalEmpatDigit);
     }
 
     public function collection()
@@ -46,7 +55,7 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     public function columnFormats(): array
     {
         return [
-           //'D' => '#,##0.00',
+            //'D' => '#,##0.00',
         ];
     }
 
@@ -61,10 +70,10 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
         //dd($payroll);
         return [
             [
-            $index++,
-            $payroll->nama_nasabah,
-            $payroll->norek_tujuan,
-            number_format($payroll->nominal, 2, '', ''),
+                $index++,
+                $payroll->nama_nasabah,
+                $payroll->norek_tujuan,
+                number_format($payroll->nominal, 2, '', ''),
             ],
 
         ];
@@ -82,49 +91,99 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     }
 
     public function registerEvents(): array
-{
-    $total = $this->totalCount;
-    $totalnominal = $this->totalnominal;
-    $adjustcell = '';
+    {
+        $total = $this->totalCount;
+        $totalnominal = $this->totalnominal;
+        // dd([
+        //     'total' => $total,
+        //     'totalNominal' => $totalnominal,
+        //     'empatDigits' => $this->empat_digit_terakhir,
+        // ]);
+        $adjustcell = '';
 
-    $totalEmpatDigit = array_sum(array_map('intval', $this->empat_digit_terakhir));
-    $md5 = md5("$total.$totalnominal.$totalEmpatDigit");
+        $totalEmpatDigit = array_sum(
+            array_map(fn ($digits): int => intval($digits), $this->empat_digit_terakhir)
+        );
+        $datamd5 = ($total . $totalnominal . $totalEmpatDigit);
+        // dd($datamd5);
+        $md5 = md5($total . $totalnominal . $totalEmpatDigit);
 
-    return [
-        AfterSheet::class => function(AfterSheet $event) use ($total, $totalnominal, $md5, $adjustcell) {
+        return [
+            AfterSheet::class => function(AfterSheet $event) use ($total, $totalnominal, $md5) {
 
-            $rowCount = count($this->collection()) + 1;
-            $event->sheet->setCellValue('A' . ($rowCount + 1), 'COUNT');
-            $event->sheet->setCellValue('D' . ($rowCount + 1), $total);
+                $rowCount = count($this->collection()) + 1;
+                $event->sheet->setCellValue('A' . ($rowCount + 1), 'COUNT');
+                $event->sheet->setCellValue('D' . ($rowCount + 1), $total);
 
-            $rowCount2 = count($this->collection()) + 2;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1), 'TOTAL');
-            $event->sheet->setCellValue('D' . ($rowCount2 + 1), number_format($totalnominal, 2, '', ''));
+                $rowCount2 = count($this->collection()) + 2;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), 'TOTAL');
+                $event->sheet->setCellValue('D' . ($rowCount2 + 1), number_format($totalnominal, 2, '', ''));
 
-            $rowCount2 = count($this->collection()) + 3;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1), 'CHECK');
-            $event->sheet->setCellValue('D' . ($rowCount2 + 1), $md5);
+                $rowCount2 = count($this->collection()) + 3;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), 'CHECK');
+                $event->sheet->setCellValue('D' . ($rowCount2 + 1), $md5);
 
-            $rowCount2 = count($this->collection()) + 4;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1),  $adjustcell);
+                $rowCount2 = count($this->collection()) + 4;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('B' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('C' . ($rowCount2 + 1), '');
 
-            $rowCount2 = count($this->collection()) + 5;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1),  $adjustcell);
+                $rowCount2 = count($this->collection()) + 5;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('B' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('C' . ($rowCount2 + 1), '');
 
-            $rowCount2 = count($this->collection()) + 6;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1),  $adjustcell);
+                $rowCount2 = count($this->collection()) + 6;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('B' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('C' . ($rowCount2 + 1), '');
 
-            $rowCount2 = count($this->collection()) + 7;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1),  $adjustcell);
+                $rowCount2 = count($this->collection()) + 7;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('B' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('C' . ($rowCount2 + 1), '');
 
-            $rowCount2 = count($this->collection()) + 8;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1),  $adjustcell);
+                $rowCount2 = count($this->collection()) + 8;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('B' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('C' . ($rowCount2 + 1), '');
 
-            $rowCount2 = count($this->collection()) + 9;
-            $event->sheet->setCellValue('A' . ($rowCount2 + 1),  $adjustcell);
-        },
-    ];
-}
+                $rowCount2 = count($this->collection()) + 9;
+                $event->sheet->setCellValue('A' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('B' . ($rowCount2 + 1), '');
+                $event->sheet->setCellValue('C' . ($rowCount2 + 1), '');
+
+
+            },
+            // BeforeWriting::class => function (BeforeWriting $event) {
+            //     $this->beforeWriting($event);
+            // },
+        ];
+    }
+
+    // public function beforeWriting(BeforeWriting $event)
+    // {
+    //     Log::info('Function BeforeWriting Called');
+
+    //     if ($this->isRegistered) {
+    //         return [];
+    //     }
+
+    //     $this->isRegistered = true;
+
+    //     $processedIds = [];
+
+    //     foreach ($this->records as $record) {
+    //         if (!in_array($record->id, $processedIds)) {
+    //             try {
+    //                 Event::dispatch(new UserActivityLogged('Export BRI', Auth::id(), $record->id));
+    //             } catch (\Exception $e) {
+    //                 Log::error('Error dispatching event: ' . $e->getMessage());
+    //             }
+    //             $processedIds[] = $record->id;
+    //         }
+    //     }
+    // }
 
     protected function ambilEmpatDigitTerakhir(array $norek_tujuan): array
     {
@@ -138,12 +197,9 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
 
             $lastFourDigits = substr($rekening, -4);
 
-            // Cek apakah digit pertama dari 4 digit terakhir adalah '0'
             if ($lastFourDigits[0] === '0') {
-                // Jika ya, ambil 3 digit setelahnya
                 $results[] = substr($lastFourDigits, 1, 3);
             } else {
-                // Jika tidak, kembalikan 4 digit terakhir
                 $results[] = $lastFourDigits;
             }
         }
