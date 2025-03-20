@@ -118,6 +118,7 @@ class RekeningTransfer extends Model
                 "PERMATA" => "BBBAIDJA",
                 "SINARMAS" => "SBJKIDJA",
                 "BCA" => "CENAIDJA",
+                "BNI" => "BNIHIDJA",
             ];
 
             $model->kode_bank = $bankCodes[$model->bank_tujuan] ?? null;

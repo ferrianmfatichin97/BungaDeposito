@@ -15,7 +15,6 @@ class ListPayrollDepositos extends ListRecords
 {
     protected static string $resource = PayrollDepositoResource::class;
 
-    // Define default values as constants
     const DEFAULT_CURRENCY = 'IDR';
     const DEFAULT_EMAIL = 'bprtaspen@gmail.com';
     const DEFAULT_IBUOBU = 'IBU';
@@ -49,7 +48,7 @@ class ListPayrollDepositos extends ListRecords
                 ->label('Export')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
-                ->fileName(fn(Export $export): string => "Proyeksi Deposito-{$export->getKey()}.csv"),
+                ->fileName(fn(Export $export): string => "Rek_Tujuan_Transfer_Pembayaran_Budep-{$export->getKey()}.csv"),
 
                 Actions\Action::make('generate')
                 ->label('Generate Data')

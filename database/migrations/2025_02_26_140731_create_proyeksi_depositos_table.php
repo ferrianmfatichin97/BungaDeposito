@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('total_bayar', 15, 2);
             $table->string('tujuan_penggunaan');
             $table->string('tanggal_bayar');
+            $table->string('jatuh_tempo');
             $table->integer('status');
             $table->timestamps();
         });

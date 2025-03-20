@@ -52,18 +52,18 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
 
         return [
             $index++,
-            '52701000324307',
+            '052701000324307',
             '00000000000',
             '',
             '',
             '',
             $payroll->norek_tujuan,
-            '0',
+            '00',
             $payroll->kode_bank,
-            number_format($payroll->nominal, 2, '', ''),
+            $payroll->nominal,
             '99',
             $payroll->norek_deposito,
-            'Budep' . date('dm') . $this->empat_digit_terakhir[$index - 2],
+            'Budep' . date('dm', strtotime('+1 day')) . $this->empat_digit_terakhir[$index - 2],
             '',
         ];
     }

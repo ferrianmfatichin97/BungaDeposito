@@ -219,7 +219,7 @@ class PayrollDepositoResource extends Resource
                         ->color('primary')
                         ->action(function (Collection $records) {
                             //dd($records);
-                            $date = date('d-m-Y');
+                            $date = date('d-m-Y', strtotime('+1 day'));
                             $fileName = 'Budep_Mandiri_' . $date . '.csv';
                             return Excel::download(new PayrollMandiriExport($records), $fileName);
                         }),
@@ -227,7 +227,7 @@ class PayrollDepositoResource extends Resource
                         ->label('Format BNI')
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
-                            $date = date('Ymd');
+                            $date = date('d-m-Y', strtotime('+1 day'));
                             $fileName = 'Budep_BNI_' . $date . '.csv';
                             return Excel::download(new PayrollBNIExport($records), $fileName);
                         }),
@@ -235,7 +235,7 @@ class PayrollDepositoResource extends Resource
                         ->label('Format BRI')
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
-                            $date = date('Ymd');
+                            $date = date('d-m-Y', strtotime('+1 day'));
                             $fileName = 'Budep_BRI_' . $date . '.csv';
                             return Excel::download(new PayrollBRIExport($records), $fileName);
                         }),
@@ -243,7 +243,7 @@ class PayrollDepositoResource extends Resource
                         ->label('Format BI-Fast BRI')
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
-                            $date = date('Ymd');
+                            $date = date('d-m-Y', strtotime('+1 day'));
                             $fileName = 'Budep_BIFast BRI_' . $date . '.csv';
                             return Excel::download(new PayrollBIFASTBRIExport($records), $fileName);
                         }),

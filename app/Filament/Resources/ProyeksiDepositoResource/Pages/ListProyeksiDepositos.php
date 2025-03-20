@@ -30,7 +30,7 @@ class ListProyeksiDepositos extends ListRecords
                 ->label('Export')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
-                ->fileName(fn(Export $export): string => "Proyeksi Deposito-{$export->getKey()}.csv"),
+                ->fileName(fn(Export $export): string => "Proyeksi Deposito-{$export->getKey()}.xlsx"),
 
             Actions\Action::make('createProyeksiDeposito')
                 ->label('Generate Data')

@@ -96,7 +96,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
     public function headings(): array
     {
         $total = $this->totalCount;
-        $date = date('Ymd');
+        $date = date('Ymd', strtotime('+1 day'));
         $totalnominal = $this->totalnominal;
 
         return [

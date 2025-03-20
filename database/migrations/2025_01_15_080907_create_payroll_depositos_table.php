@@ -22,7 +22,8 @@ return new class extends Migration
             $table->decimal('nominal',20,0)->nullable();
             $table->string('jatuh_tempo')->nullable();
             $table->string('status')->nullable();
-            $table->string('currency')->nullable();
+            $table->string('status')->nullable();
+            $table->string('tanggal_bayar')->nullable();
             $table->string('emailcorporate')->nullable();
             $table->string('ibuobu')->nullable();
             $table->string('remark1')->nullable();
