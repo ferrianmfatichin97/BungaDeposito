@@ -41,7 +41,10 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->plugins([
                 ActivitylogPlugin::make()
-                 ->navigationGroup('Menu Admin'),
+                 ->navigationGroup('Menu Admin')
+                 ->authorize(
+                    fn () => auth()->user()->isAdmin()
+                ),
                 AutoLogoutPlugin::make()
                     ->color(Color::Emerald)
                     // ->withoutWarning()
