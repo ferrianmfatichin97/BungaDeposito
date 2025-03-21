@@ -188,25 +188,6 @@ class ProyeksiDepositoResource extends Resource
                         ->icon('heroicon-o-document-arrow-down')
                         ->color('primary')
                         ->action(function (Collection $records) {
-                            // $records->load('rekening');
-
-                            // $eloquentRecords = ProyeksiDeposito::whereIn('id', $records->pluck('id'))->with('rekening')->get();
-
-                            // $exportData = $eloquentRecords->map(function ($record) {
-                            //     return [
-                            //         'rek_deposito' => $record->rek_deposito,
-                            //         'nama_nasabah' => $record->nama_nasabah,
-                            //         'norek_tujuan' => $record->rekening->norek_tujuan ?? null,
-                            //         'bank_tujuan' => $record->rekening->bank_tujuan ?? null,
-                            //         'nama_rekening' => $record->rekening->nama_rekening ?? null,
-                            //         'total_bayar' => $record->total_bayar,
-                            //         'tanggal_bayar' => $record->tanggal_bayar,
-                            //         'status' => $record->status == 1 ? 'AKTIF' : 'TIDAK AKTIF',
-                            //     ];
-                            // });
-
-                           //dd($records);
-
                             $date = date('d-m-Y');
                             $fileName = 'Data_Rekening_Pembayaran_' . $date . '.xlsx';
                             return Excel::download(new RekeningPelengkap($records), $fileName);

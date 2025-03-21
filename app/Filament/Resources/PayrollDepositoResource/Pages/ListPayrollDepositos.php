@@ -2,14 +2,16 @@
 
 namespace App\Filament\Resources\PayrollDepositoResource\Pages;
 
-use App\Filament\Exports\PayrollDepositoExporter;
 use Filament\Actions;
-use Illuminate\Support\Facades\DB;
-use Filament\Resources\Pages\ListRecords;
-use App\Filament\Resources\PayrollDepositoResource;
-use App\Models\ProyeksiDeposito;
 use App\Models\PayrollDeposito;
+use App\Models\ProyeksiDeposito;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Actions\Exports\Models\Export;
+use App\Filament\Exports\PayrollDepositoExporter;
+use App\Filament\Resources\PayrollDepositoResource;
 
 class ListPayrollDepositos extends ListRecords
 {
@@ -48,9 +50,9 @@ class ListPayrollDepositos extends ListRecords
                 ->label('Export')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
-                ->fileName(fn(Export $export): string => "Rek_Tujuan_Transfer_Pembayaran_Budep-{$export->getKey()}.csv"),
+                ->fileName(fn(Export $export): string => "Rek_Tujuan_Transfer_Pembayaran_Budep-{$export->getKey()}.xlsx"),
 
-                Actions\Action::make('generate')
+            Actions\Action::make('generate')
                 ->label('Generate Data')
                 ->action(function () {
                     try {
@@ -61,7 +63,7 @@ class ListPayrollDepositos extends ListRecords
                             foreach ($getdata as $data) {
                                 $rekening = $data->rekening;
 
-                                $insertData[] = [
+                                $entry = [
                                     'norek_deposito' => $data['rek_deposito'],
                                     'nama_nasabah' => $data['nama_nasabah'],
                                     'tanggal_bayar' => $data['tanggal_bayar'],
@@ -92,21 +94,32 @@ class ListPayrollDepositos extends ListRecords
                                     'adjust12' => self::DEFAULT_ADJUST12,
                                     'adjust13' => self::DEFAULT_ADJUST13,
                                 ];
+
+                                $insertData[] = $entry;
                             }
 
                             foreach ($insertData as $data) {
+                                Log::info('Memeriksa norek_tujuan:', ['norek_tujuan' => $data['norek_tujuan']]);
                                 if ($data['norek_tujuan'] !== 0 && $data['norek_tujuan'] !== null) {
                                     PayrollDeposito::updateOrCreate(
                                         ['norek_deposito' => $data['norek_deposito']],
                                         $data
                                     );
+                                    Log::info('Data Payroll Deposito Berhasil Di Generate', $data);
                                 }
                             }
 
-                            session()->flash('message', 'Payroll Deposito records generated successfully.');
+                            Notification::make()
+                                ->title('Generate Data Berhasil')
+                                ->success()
+                                ->send();
                         });
                     } catch (\Exception $e) {
-                        session()->flash('error', 'An error occurred while generating records: ' . $e->getMessage());
+                        Log::error('Gagal Generate Data: ' . $e->getMessage());
+                        Notification::make()
+                            ->title('Gagal Generate Data')
+                            ->danger()
+                            ->send();
                     }
                 }),
             Actions\Action::make('Clear Data')
@@ -125,6 +138,9 @@ class ListPayrollDepositos extends ListRecords
 
         DB::table($tableName)->truncate();
 
-        session()->flash('message', "Table '{$tableName}' has been deleted successfully.");
+        Notification::make()
+            ->title('Data Berhasil Di Hapus')
+            ->success()
+            ->send();
     }
 }

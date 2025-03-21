@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('tanggal_bayar')->nullable();
             $table->string('emailcorporate')->nullable();
             $table->string('ibuobu')->nullable();
+            $table->string('currency')->nullable();
             $table->string('remark1')->nullable();
             $table->string('remark2')->nullable();
             $table->string('remark3')->nullable();

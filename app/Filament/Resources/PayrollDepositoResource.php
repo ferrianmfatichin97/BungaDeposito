@@ -23,6 +23,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
@@ -93,54 +94,35 @@ class PayrollDepositoResource extends Resource
                         '3' => 'gray',
                     }),
             ])
+            ->defaultSort('tanggal_bayar')
             ->filters([
-                SelectFilter::make('bank_tujuan')->multiple()->label('Bank Tujuan')->options([
-                    'ARTHA GRAHA' => 'ARTHA GRAHA',
-                    'BANK ACEH SYARIAH' => 'BANK ACEH SYARIAH',
-                    'BANK BANTEN' => 'BANK BANTEN',
-                    'BANK BENGKULU' => 'BANK BENGKULU',
-                    'BANK JAGO' => 'BANK JAGO',
-                    'BANK JATENG' => 'BANK JATENG',
-                    'BANK JATIM' => 'BANK JATIM',
-                    'BANK LAMPUNG' => 'BANK LAMPUNG',
-                    'BANK SULSELBAR' => 'BANK SULSELBAR',
-                    'BANK SULSELBAR SYARIAH' => 'BANK SULSELBAR SYARIAH',
-                    'BANK SULTRA' => 'BANK SULTRA',
-                    'BANK SULUT' => 'BANK SULUT',
-                    'BANK SULUTGO' => 'BANK SULUTGO',
-                    'BCA' => 'BCA',
-                    'BCA DIGITAL' => 'BCA DIGITAL',
-                    'BCA SYARIAH' => 'BCA SYARIAH',
-                    'BJB' => 'BJB',
-                    'BJB SYARIAH' => 'BJB SYARIAH',
-                    'BNI' => 'BNI',
-                    'BRI' => 'BRI',
-                    'BSI' => 'BSI',
-                    'BTN' => 'BTN',
-                    'BTN SYARIAH' => 'BTN SYARIAH',
-                    'BTPN' => 'BTPN',
-                    'BUKOPIN' => 'BUKOPIN',
-                    'BUMI ARTA' => 'BUMI ARTA',
-                    'BWS' => 'BWS',
-                    'CIMB' => 'CIMB NIAGA',
-                    'DKI' => 'DKI',
-                    'DKI SYARIAH' => 'DKI SYARIAH',
-                    'MANDIRI' => 'MANDIRI',
-                    'MANTAP' => 'MANTAP',
-                    'MUAMALAT' => 'MUAMALAT',
-                    'PANIN BANK' => 'PANIN BANK',
-                ]),
-                //SelectFilter::make('jatuh_tempo')->options(array_combine(range(1, 31), range(1, 31))),
-                SelectFilter::make('status')->label('Status')->options([
-                    'AKTIF' => 'AKTIF',
-                    'TIDAK AKTIF' => 'Tidak Aktif',
-                // SelectFilter::make('norek_tujuan')
-                //         ->label('Norek Tujuan')
-                //         ->options(function () {
-                //             return PayrollDeposito::where('norek_tujuan', '!=', 0)
-                //                 ->pluck('norek_tujuan', 'norek_tujuan');
-                //         }),
-                ]),
+                SelectFilter::make('bank_tujuan')
+                    ->label('Bank Tujuan')
+                    ->multiple()
+                    ->searchable()
+                    ->options(PayrollDeposito::distinct()->pluck('bank_tujuan', 'bank_tujuan')->filter(fn($value) => !is_null($value))),
+
+                SelectFilter::make('bifast')
+                    ->label('BIFAST')
+                    ->options([
+                        'BIFAST' => 'BIFAST',
+                        'NON BIFAST' => 'NON BIFAST',
+                    ])
+                    ->query(function (BaseFilter $filter, Builder $query) {
+                        $value = $filter->getState()['value'];
+                        if ($value === 'BIFAST') {
+                            $query->whereNotIn('bank_tujuan', ['MANDIRI', 'BRI']);
+                        } else {
+                            $query->whereIn('bank_tujuan', ['MANDIRI', 'BRI']);
+                        }
+                    }),
+
+                    SelectFilter::make('tanggal_bayar')
+                    ->label('Tanggal Bayar')
+                    ->multiple()
+                    ->searchable()
+                    ->options(PayrollDeposito::distinct()->pluck('tanggal_bayar', 'tanggal_bayar')->filter(fn($value) => !is_null($value))),
+
             ], layout: FiltersLayout::AboveContent)
             ->actions([
                 ActionGroup::make([

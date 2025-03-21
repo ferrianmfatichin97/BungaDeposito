@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Resources\Components\Tab;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Notifications\Notification;
 
 class ListProyeksiDepositos extends ListRecords
 {
@@ -35,8 +36,19 @@ class ListProyeksiDepositos extends ListRecords
             Actions\Action::make('createProyeksiDeposito')
                 ->label('Generate Data')
                 ->action(function () {
-                    Artisan::call('app:proyeksideposito');
-                    //$this->notify('success', 'Proyeksi Deposito created successfully.');
+                    $exitCode = Artisan::call('app:proyeksideposito');
+
+                    if ($exitCode === 0) {
+                        Notification::make()
+                            ->title('Generate Data Berhasil')
+                            ->success()
+                            ->send();
+                    } else {
+                        Notification::make()
+                            ->title('Generate Data Gagal')
+                            ->danger()
+                            ->send();
+                    }
                 })
                 ->color('primary'),
 
