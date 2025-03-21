@@ -60,6 +60,10 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 
+    public function canAccessPanel($panel): bool
+    {
+        return true;
+    }
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
