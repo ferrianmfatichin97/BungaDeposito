@@ -119,6 +119,8 @@ class RekeningTransfer extends Model
                 "SINARMAS" => "SBJKIDJA",
                 "BCA" => "CENAIDJA",
                 "BNI" => "BNIHIDJA",
+                "BJB" => "PDJBIDJA",
+                "BANK DKI" => "BDKIIDJ1",
             ];
 
             $model->kode_bank = $bankCodes[$model->bank_tujuan] ?? null;

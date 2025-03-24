@@ -167,15 +167,10 @@ class ProyeksiDepositoResource extends Resource
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->query(ProyeksiDeposito::query())
             ->filters([
-                TextFilter::make('norek_tujuan')
-                    ->label('Kode Bank Kosong')
-                    ->query(function (Builder $query) {
-                        return $query->whereDoesntHave('rekening', function ($query) {
-                            $query->whereNotNull('norek_tujuan')
-                                ->where('norek_tujuan', '!=', '');
-                        });
-                    }),
+                Tables\Filters\Filter::make('tanpa_rekening')
+                    ->query(fn (Builder $query) => $query->whereDoesntHave('rekening')),
             ])
             //], layout: FiltersLayout::AboveContent)
             ->actions([

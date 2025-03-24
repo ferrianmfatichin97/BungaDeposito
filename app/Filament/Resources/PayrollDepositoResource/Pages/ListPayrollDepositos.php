@@ -8,10 +8,14 @@ use App\Models\ProyeksiDeposito;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Facades\Excel;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Actions\Exports\Models\Export;
 use App\Filament\Exports\PayrollDepositoExporter;
+use App\Exports\PayrollDepositoExport;
 use App\Filament\Resources\PayrollDepositoResource;
+
 
 class ListPayrollDepositos extends ListRecords
 {
@@ -37,6 +41,7 @@ class ListPayrollDepositos extends ListRecords
     const DEFAULT_ADJUST12 = 'BANK MANDIRI TASPEN';
     const DEFAULT_ADJUST13 = '2144213178589';
 
+
     protected function getHeaderActions(): array
     {
         return [
@@ -45,12 +50,31 @@ class ListPayrollDepositos extends ListRecords
                 ->icon('heroicon-o-plus')
                 ->color('primary'),
 
-            Actions\ExportAction::make()
-                ->exporter(PayrollDepositoExporter::class)
+                // Actions\ExportAction::make()
+                // ->exporter(PayrollDepositoExporter::class)
+                // ->label('Export')
+                // ->icon('heroicon-o-document-arrow-down')
+                // ->color('primary'),
+                // //->fileName(fn(Export $export): string => "Rekening Tujuan Transfer Pembayaran Bunga Deposito-{$export->getKey()}.xlsx"),
+
+                Actions\Action::make('export1')
                 ->label('Export')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
-                ->fileName(fn(Export $export): string => "Rek_Tujuan_Transfer_Pembayaran_Budep-{$export->getKey()}.xlsx"),
+                ->action(function () {
+                    $currentDate = new \DateTime();
+                    $month = $currentDate->format('m');
+                    $year = $currentDate->format('Y');
+
+                    $tanggalBayarGrouped = ProyeksiDeposito::select('tanggal_bayar')
+                    ->groupBy('tanggal_bayar')
+                    ->get();
+
+                    $tanggalString = implode('_', $tanggalBayarGrouped->pluck('tanggal_bayar')->toArray());
+                    $fileName = 'Rekening Tujuan Transfer Pembayaran Bunga Deposito_' . $tanggalString .'_'.$month.'_'.$year.'.xlsx';
+
+                    return Excel::download(new PayrollDepositoExport(), $fileName);
+                }),
 
             Actions\Action::make('generate')
                 ->label('Generate Data')
@@ -98,13 +122,14 @@ class ListPayrollDepositos extends ListRecords
                                 $insertData[] = $entry;
                             }
 
+                            //dd($insertData);
+
                             foreach ($insertData as $data) {
                                 Log::info('Memeriksa norek_tujuan:', ['norek_tujuan' => $data['norek_tujuan']]);
-                                if ($data['norek_tujuan'] !== 0 && $data['norek_tujuan'] !== null) {
-                                    PayrollDeposito::updateOrCreate(
-                                        ['norek_deposito' => $data['norek_deposito']],
-                                        $data
-                                    );
+
+                                $result = PayrollDeposito::create($data);
+
+                                if ($result) {
                                     Log::info('Data Payroll Deposito Berhasil Di Generate', $data);
                                 }
                             }

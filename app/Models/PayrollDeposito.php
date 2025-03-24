@@ -15,6 +15,7 @@ use Spatie\Activitylog\LogOptions;
 class PayrollDeposito extends Model
 {
     use LogsActivity;
+    protected $table = 'payroll_depositos';
     protected $fillable = [
         'norek_deposito',
         'nama_nasabah',

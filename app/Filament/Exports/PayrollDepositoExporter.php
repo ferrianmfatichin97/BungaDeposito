@@ -3,30 +3,50 @@
 namespace App\Filament\Exports;
 
 use App\Models\PayrollDeposito;
-use Filament\Actions\Exports\ExportColumn;
-use Filament\Actions\Exports\Exporter;
-use Filament\Actions\Exports\Models\Export;
+use App\Models\ProyeksiDeposito;
 use Illuminate\Support\Facades\Log;
+use Filament\Actions\Exports\Exporter;
+use Filament\Actions\Exports\ExportColumn;
+use Filament\Actions\Exports\Models\Export;
+use Illuminate\Support\Facades\DB;
 
 class PayrollDepositoExporter extends Exporter
 {
     protected static ?string $model = PayrollDeposito::class;
+    public function getFileName(Export $export): string
+{
+    $currentDate = new \DateTime();
+    $month = $currentDate->format('m');
+    $year = $currentDate->format('Y');
+
+    $tanggalBayarGrouped = ProyeksiDeposito::select('tanggal_bayar')
+    ->groupBy('tanggal_bayar')
+    ->get();
+
+    $tanggalString = implode('_', $tanggalBayarGrouped->pluck('tanggal_bayar')->toArray());
+
+    //dd($tanggalString);
+
+    return "Rekening Tujuan Transfer Pembayaran Bunga Deposito_{$tanggalString}_{$month}_{$year}.csv";
+}
 
     public static function getColumns(): array
     {
         return [
-            ExportColumn::make('id')
-                ->label('ID'),
-            ExportColumn::make('norek_deposito'),
-            ExportColumn::make('nama_nasabah'),
-            ExportColumn::make('norek_tujuan'),
-            ExportColumn::make('kode_bank'),
-            ExportColumn::make('bank_tujuan'),
-            ExportColumn::make('nama_rekening'),
-            ExportColumn::make('nominal'),
-            ExportColumn::make('jatuh_tempo'),
-            ExportColumn::make('status'),
-            ExportColumn::make('tanggal_bayar'),
+            // ExportColumn::make('row_number')
+            // ->label('NO')
+            // ->format(fn($record, $index) => $index + 1),
+            ExportColumn::make('nama_nasabah')
+                ->label('NAMA'),
+            ExportColumn::make('norek_deposito')
+                ->label('NOREK DEPOSITO'),
+            ExportColumn::make('norek_tujuan')
+                ->label('NO REKENING TUJUAN'),
+            ExportColumn::make('bank_tujuan')
+                ->label('BANK TUJUAN'),
+            ExportColumn::make('nominal')
+                ->label('NOMINAL'),
+
         ];
     }
 

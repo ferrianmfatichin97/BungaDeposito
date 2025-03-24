@@ -9,6 +9,7 @@ use App\Exports\PayrollBRIExport;
 use App\Exports\PayrollMandiriExport;
 use App\Filament\Resources\PayrollDepositoResource\Pages;
 use App\Models\PayrollDeposito;
+use DeepCopy\Filter\Filter;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
@@ -102,22 +103,30 @@ class PayrollDepositoResource extends Resource
                     ->searchable()
                     ->options(PayrollDeposito::distinct()->pluck('bank_tujuan', 'bank_tujuan')->filter(fn($value) => !is_null($value))),
 
-                SelectFilter::make('bifast')
-                    ->label('BIFAST')
-                    ->options([
-                        'BIFAST' => 'BIFAST',
-                        'NON BIFAST' => 'NON BIFAST',
-                    ])
-                    ->query(function (BaseFilter $filter, Builder $query) {
-                        $value = $filter->getState()['value'];
-                        if ($value === 'BIFAST') {
-                            $query->whereNotIn('bank_tujuan', ['MANDIRI', 'BRI']);
-                        } else {
-                            $query->whereIn('bank_tujuan', ['MANDIRI', 'BRI']);
-                        }
-                    }),
+                Tables\Filters\Filter::make('bank_tujuan2')
+                    ->label('BI Fast')
+                    ->query(fn(Builder $query): Builder => $query->whereNotIn('bank_tujuan', ['BRI', 'MANDIRI'])),
 
-                    SelectFilter::make('tanggal_bayar')
+                Tables\Filters\Filter::make('bank_tujuan3')
+                    ->label('Non BI Fast')
+                    ->query(fn(Builder $query): Builder => $query->whereIn('bank_tujuan', ['BRI', 'MANDIRI'])),
+
+                // Tables\Filters\SelectFilter::make('bank_tujuan')
+                // ->label('Pilih Bank Tujuan')
+                // ->options([
+                //     'bi_fast' => 'BI Fast',
+                //     'non_bi_fast' => 'Non BI Fast',
+                // ])
+                // ->query(function (Builder $query, $value) {
+                //     if ($value === 'bi_fast') {
+                //         return $query->whereNotIn('bank_tujuan', ['BRI', 'MANDIRI']);
+                //     } elseif ($value === 'non_bi_fast') {
+                //         return $query->whereIn('bank_tujuan', ['BRI', 'MANDIRI']);
+                //     }
+                //     return $query; // Kembalikan query tanpa filter jika tidak ada pilihan
+                // }),
+
+                SelectFilter::make('tanggal_bayar')
                     ->label('Tanggal Bayar')
                     ->multiple()
                     ->searchable()

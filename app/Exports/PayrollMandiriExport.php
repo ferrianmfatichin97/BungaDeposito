@@ -49,6 +49,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
     {
         static $index = 1;
         static $angka = "008";
+        $esokHari = 'Budep ' . date('d M y', strtotime('+1 day'));
         return [
             $payroll->norek_tujuan,
             $payroll->nama_rekening,
@@ -57,7 +58,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             '',
             'IDR',
             $payroll->nominal,
-            'Budep ' . date('d M y'),
+            $esokHari,
             $payroll->norek_deposito,
             'IBU',
             $angka,
@@ -108,34 +109,6 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             $totalnominal,
         ];
     }
-
-    // public function registerEvents(): array
-    // {
-    //     Log::info('registerEvents function is called');
-
-    //     if ($this->isRegistered) {
-    //         Log::info('Events already registered, returning empty array.');
-    //         return [];
-    //     }
-
-    //     $this->isRegistered = true;
-
-    //     Log::info('registerEvents called from ' . debug_backtrace()[1]['function']);
-    //     $processedIds = [];
-
-    //     if (empty($this->records)) {
-    //         Log::warning('No records found to process.');
-    //     }
-
-    //     foreach ($this->records as $record) {
-    //         if (!in_array($record->id, $processedIds)) {
-    //             Log::info('Dispatching event for record ID: ' . $record->id);
-    //             Event::dispatch(new UserActivityLogged('Export Mandiri', Auth::id(), $record->id));
-    //             $processedIds[] = $record->id;
-    //         }
-    //     }
-    //     return $processedIds;
-    // }
 
     public function getTotalCount(): int
     {
