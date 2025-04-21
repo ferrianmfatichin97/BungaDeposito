@@ -184,7 +184,7 @@ class ProyeksiDepositoResource extends Resource
                         ->color('primary')
                         ->action(function (Collection $records) {
                             $date = date('d-m-Y');
-                            $fileName = 'Data_Rekening_Pembayaran_' . $date . '.xlsx';
+                            $fileName = 'Data_Rekening_Pembayaran_' . $date . '(Tidak Lengkap).xlsx';
                             return Excel::download(new RekeningPelengkap($records), $fileName);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),

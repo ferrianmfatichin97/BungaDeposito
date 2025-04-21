@@ -21,6 +21,9 @@ class ProyeksiDeposito extends Model
 
     protected $table = 'proyeksi_depositos';
 
+//    protected $primaryKey = 'rek_deposito';
+//     public $incrementing = false;
+
     protected $fillable = [
         'rek_deposito',
         'nama_nasabah',
@@ -35,6 +38,7 @@ class ProyeksiDeposito extends Model
         'tanggal_bayar',
         'jatuh_tempo',
         'status',
+        'dep_abp',
     ];
 
     public function rekening():BelongsTo

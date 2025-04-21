@@ -47,17 +47,28 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
 
     public function map($payroll): array
     {
+        //dd($payroll);
         static $index = 1;
-        static $angka = "008";
-        $esokHari = 'Budep ' . date('d M y', strtotime('+1 day'));
+        static $angka = "8";
+        $esokHari = 'Budep ' . date('d', strtotime('+1 day'));
+
+        if ($payroll->dep_apb == '2') {
+            $total_dibayarkan = $payroll->total_bunga;
+        } else {
+            $total_dibayarkan = $payroll->nominal;
+        }
+        dd([
+            'total_dibayarkan' => $total_dibayarkan,
+            'payroll' => $payroll,
+        ]);
         return [
             $payroll->norek_tujuan,
-            $payroll->nama_rekening,
+            $payroll->nama_nasabah,
             '',
             '',
             '',
             'IDR',
-            $payroll->nominal,
+            $total_dibayarkan,
             $esokHari,
             $payroll->norek_deposito,
             'IBU',
@@ -67,6 +78,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             '',
             '',
             '',
+            'N',
             'N',
             '',
             '',
@@ -88,7 +100,6 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             '',
             '',
             '',
-            'OUR',
             '',
             'EPD' . $index++,
         ];
@@ -104,7 +115,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
 
             'P',
             $date,
-            '1290000168290',
+            '1670018119908',
             $total,
             $totalnominal,
         ];

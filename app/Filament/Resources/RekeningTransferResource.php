@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\RekeningTransferResource\Pages;
-use App\Filament\Resources\RekeningTransferResource\RelationManagers;
-use App\Models\RekeningTransfer;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Models\RekeningTransfer;
+use Filament\Resources\Resource;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\RekeningTransferResource\Pages;
+use App\Filament\Resources\RekeningTransferResource\RelationManagers;
 
 class RekeningTransferResource extends Resource
 {
@@ -79,7 +80,12 @@ class RekeningTransferResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('bank_tujuan')
+                    ->label('Bank Tujuan')
+                    ->multiple()
+                    ->searchable()
+                    ->options(RekeningTransfer::distinct()->pluck('bank_tujuan', 'bank_tujuan')->filter(fn($value) => $value !== null)),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

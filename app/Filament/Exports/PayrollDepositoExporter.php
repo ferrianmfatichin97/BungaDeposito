@@ -46,6 +46,8 @@ class PayrollDepositoExporter extends Exporter
                 ->label('BANK TUJUAN'),
             ExportColumn::make('nominal')
                 ->label('NOMINAL'),
+            ExportColumn::make('tanggal_bayar')
+                ->label('TGL Bayar'),
 
         ];
     }

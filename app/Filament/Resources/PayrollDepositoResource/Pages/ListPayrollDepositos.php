@@ -82,6 +82,7 @@ class ListPayrollDepositos extends ListRecords
                     try {
                         DB::transaction(function () {
                             $getdata = ProyeksiDeposito::withRekeningTransfer()->get();
+                            //dd($getdata);
                             $insertData = [];
 
                             foreach ($getdata as $data) {
@@ -96,8 +97,10 @@ class ListPayrollDepositos extends ListRecords
                                     'kode_bank' => $rekening->kode_bank ?? null,
                                     'nama_rekening' => $rekening->nama_rekening ?? 0,
                                     'nominal' => $data['total_bayar'],
+                                    'total_bunga' => $data['total_bunga'],
                                     'jatuh_tempo' => $data['jatuh_tempo'],
                                     'status' => $data['status'],
+                                    'dep_abp' => $data['dep_abp'],
                                     'currency' => self::DEFAULT_CURRENCY,
                                     'emailcorporate' => self::DEFAULT_EMAIL,
                                     'ibuobu' => self::DEFAULT_IBUOBU,

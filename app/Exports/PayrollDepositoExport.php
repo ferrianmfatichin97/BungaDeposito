@@ -25,18 +25,37 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
     }
 
     public function map($payroll): array
-    {
-        static $index = 1;
-        return [
-            $index++,
-            $payroll->nama_nasabah,
-            $payroll->norek_deposito,
-            $payroll->norek_tujuan,
-            $payroll->bank_tujuan,
-            $payroll->nominal,
-            '',
-        ];
+{
+    static $index = 1;
+
+    switch ($payroll->bank_tujuan) {
+        case 'BRI':
+            $tf_via = 'BRI';
+            break;
+        case 'MANDIRI':
+            $tf_via = 'MANDIRI';
+            break;
+        default:
+            $tf_via = 'BI-FAST';
+            break;
     }
+
+    $total_dibayarkan = ($payroll->dep_apb == "2") ? $payroll->total_bunga : $payroll->nominal;
+    //dd($total_dibayarkan);
+    //dd($payroll);
+
+    return [
+        $index++,
+        $payroll->nama_nasabah,
+        $payroll->norek_deposito,
+        "'".$payroll->norek_tujuan,
+        $payroll->bank_tujuan,
+        $total_dibayarkan,
+        $tf_via,
+        $payroll->tanggal_bayar,
+        $payroll->nama_rekening,
+    ];
+}
 
     public function headings(): array
     {
@@ -48,33 +67,46 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
             'BANK TUJUAN',
             'NOMINAL',
             'TF VIA',
+            'TANGGAL BAYAR',
+            'Nama Penerima',
 
         ];
     }
 
     public function registerEvents(): array
     {
+        // $totalNominalByBank = DB::table('payroll_depositos')
+        //     ->select('bank_tujuan', DB::raw('SUM(nominal) AS total_nominal'))
+        //     ->groupBy('bank_tujuan')
+        //     ->get();
+
         $totalNominalByBank = DB::table('payroll_depositos')
-            ->select('bank_tujuan', DB::raw('SUM(nominal) AS total_nominal'))
-            ->groupBy('bank_tujuan')
+            ->select(DB::raw("
+                CASE
+                    WHEN bank_tujuan IN ('MANDIRI', 'BRI') THEN bank_tujuan
+                    ELSE 'BI-FAST'
+                END AS bank_group,
+                SUM(nominal) AS total_nominal
+            "))
+            ->groupBy('bank_group')
             ->get();
 
         return [
             AfterSheet::class => function (AfterSheet $event) use ($totalNominalByBank) {
-                $rowCount = count($this->collection()) + 1;
+                $rowCount = count($this->collection()) + 2;
 
-                $event->sheet->setCellValue('A' . ($rowCount + 1), 'BANK TUJUAN');
-                $event->sheet->setCellValue('B' . ($rowCount + 1), 'TOTAL NOMINAL');
+                $event->sheet->setCellValue('B' . ($rowCount + 1), 'TV VIA');
+                $event->sheet->setCellValue('C' . ($rowCount + 1), 'TOTAL NOMINAL');
 
                 $row = $rowCount + 2;
                 foreach ($totalNominalByBank as $item) {
-                    $event->sheet->setCellValue('A' . $row, $item->bank_tujuan);
-                    $event->sheet->setCellValue('B' . $row, number_format($item->total_nominal, 2, '.', ''));
+                    $event->sheet->setCellValue('B' . $row, $item->bank_group);
+                    $event->sheet->setCellValue('C' . $row, number_format($item->total_nominal, 2, '.', ''));
                     $row++;
                 }
 
-                $event->sheet->setCellValue('A' . $row, '');
                 $event->sheet->setCellValue('B' . $row, '');
+                $event->sheet->setCellValue('C' . $row, '');
             },
         ];
     }

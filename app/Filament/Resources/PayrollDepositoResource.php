@@ -66,10 +66,14 @@ class PayrollDepositoResource extends Resource
         return $table
             ->heading('Tabel Payroll Deposito')
             ->columns([
-                TextColumn::make('norek_deposito')->label('No.Referensi')->searchable(),
+                TextColumn::make('norek_deposito')->label('No.Referensi')->searchable()->copyable()->copyMessage('Berhasil Di Copy'),
                 TextColumn::make('nama_nasabah'),
                 TextColumn::make('norek_tujuan')->searchable()->copyable()->copyMessage('Berhasil Di Copy'),
                 TextColumn::make('bank_tujuan'),
+                TextColumn::make('total_bunga')
+                    ->alignment(Alignment::Center)
+                    ->formatStateUsing(fn(PayrollDeposito $record): string => 'Rp ' . number_format($record->total_bunga, 0, '.', '.'))
+                    ->summarize(Sum::make()->label('Total')->money('IDR')),
                 TextColumn::make('nominal')
                     ->alignment(Alignment::Center)
                     ->formatStateUsing(fn(PayrollDeposito $record): string => 'Rp ' . number_format($record->nominal, 0, '.', '.'))
@@ -77,6 +81,8 @@ class PayrollDepositoResource extends Resource
                 TextColumn::make('tanggal_bayar')
                     ->label('Tanggal Bayar')
                     ->alignment(Alignment::Center),
+                TextColumn::make('nama_rekening')
+                    ->label('Nama Rekening'),
                 TextColumn::make('jatuh_tempo')
                     ->date()
                     ->sortable()
@@ -107,9 +113,9 @@ class PayrollDepositoResource extends Resource
                     ->label('BI Fast')
                     ->query(fn(Builder $query): Builder => $query->whereNotIn('bank_tujuan', ['BRI', 'MANDIRI'])),
 
-                Tables\Filters\Filter::make('bank_tujuan3')
-                    ->label('Non BI Fast')
-                    ->query(fn(Builder $query): Builder => $query->whereIn('bank_tujuan', ['BRI', 'MANDIRI'])),
+                // Tables\Filters\Filter::make('bank_tujuan3')
+                //     ->label('Non BI Fast')
+                //     ->query(fn(Builder $query): Builder => $query->whereIn('bank_tujuan', ['BRI', 'MANDIRI'])),
 
                 // Tables\Filters\SelectFilter::make('bank_tujuan')
                 // ->label('Pilih Bank Tujuan')
@@ -235,6 +241,7 @@ class PayrollDepositoResource extends Resource
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
                             $date = date('d-m-Y', strtotime('+1 day'));
+                            //dd($records);
                             $fileName = 'Budep_BIFast BRI_' . $date . '.csv';
                             return Excel::download(new PayrollBIFASTBRIExport($records), $fileName);
                         }),

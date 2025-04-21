@@ -67,13 +67,18 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     public function map($payroll): array
     {
         static $index = 1;
+        if ($payroll->dep_apb == 2) {
+            $total_dibayarkan = $payroll->total_bunga;
+        } else {
+            $total_dibayarkan = $payroll->nominal;
+        }
         //dd($payroll);
         return [
             [
                 $index++,
                 $payroll->nama_nasabah,
                 $payroll->norek_tujuan,
-                number_format($payroll->nominal, 2, '', ''),
+                number_format($total_dibayarkan, 2, '', ''),
             ],
 
         ];

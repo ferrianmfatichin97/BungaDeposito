@@ -17,6 +17,7 @@ use Spatie\Activitylog\LogOptions;
 class RekeningTransfer extends Model
 {
     use LogsActivity;
+
     protected $fillable = [
         'norek_deposito',
         'nama_deposan',
@@ -106,10 +107,11 @@ class RekeningTransfer extends Model
                 "BPD SULTRA" => "PDWRIDJ1",
                 "BSI" => "BSMDIDJA",
                 "BTN" => "BTANIDJA",
-                "BTPN" => "PUBAIDJ1",
+                "BTPN" => "SUNIIDJA",
                 "BWS" => "BSDRIDJA",
                 "DANAMON" => "BDINIDJA",
                 "DKI" => "BDKIIDJ1",
+                "BANK DKI" => "BDKIIDJ1",
                 "DKI SYARIAH" => "SYDKIDJ1",
                 "MAYBANK" => "IBBKIDJA",
                 "MEGA" => "MEGAIDJA",
@@ -118,9 +120,13 @@ class RekeningTransfer extends Model
                 "PERMATA" => "BBBAIDJA",
                 "SINARMAS" => "SBJKIDJA",
                 "BCA" => "CENAIDJA",
-                "BNI" => "BNIHIDJA",
+                "BNI" => "BNINIDJA",
                 "BJB" => "PDJBIDJA",
-                "BANK DKI" => "BDKIIDJ1",
+                "BJB SYARIAH" => "SYJBIDJ1",
+                "MUAMALAT" => "MUABIDJA",
+                "ALLO BANK" => "ALOBIDJA",
+                "BLU BCA" => "ROYBIDJ1",
+                "SEABANK" => "KSEBIDJ1",
             ];
 
             $model->kode_bank = $bankCodes[$model->bank_tujuan] ?? null;

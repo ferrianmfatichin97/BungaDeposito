@@ -47,6 +47,7 @@ class CreateProyeksiDepositoCommand extends Command
                 'tanggal_bayar' => $deposit->tanggal_bayar,
                 'jatuh_tempo' => $deposit->jatuh_tempo,
                 'status' => $deposit->status,
+                'dep_abp' => $deposit->dep_abp,
             ]);
         }
 
@@ -68,6 +69,9 @@ class CreateProyeksiDepositoCommand extends Command
             $daysToCheck = [$today->day];
         }
 
+        //$daysToCheck = [19,20,21];
+
+
         return DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
             ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
             ->join('data_deposito_pelengkap as p', 'd.dep_rekening', '=', 'p.pelengkap_rekening')
@@ -86,7 +90,8 @@ class CreateProyeksiDepositoCommand extends Command
                 DB::raw('IFNULL(LPAD(DAY(d.dep_tgl_valuta), 2, "0"), "01") AS tanggal_bayar'),
                 'd.dep_tgl_jthtempo AS jatuh_tempo',
                 'd.dep_status AS status',
-                'p.pelengkap_pajak_bebas AS pelengkap_pajak_bebas'
+                'p.pelengkap_pajak_bebas AS pelengkap_pajak_bebas',
+                'd.dep_abp AS dep_abp'
             )
             ->where('d.dep_status', 1)
             ->where('d.dep_tabungan', '')

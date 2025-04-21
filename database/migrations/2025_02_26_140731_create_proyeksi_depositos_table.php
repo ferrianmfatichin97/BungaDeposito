@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('tujuan_penggunaan');
             $table->string('tanggal_bayar');
             $table->string('jatuh_tempo');
+            $table->integer('dep_abp');
             $table->integer('status');
             $table->timestamps();
         });
