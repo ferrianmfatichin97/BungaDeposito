@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Auth;
 use App\Events\UserActivityLogged;
+use App\Models\PayrollDeposito;
 
 
 
@@ -35,6 +36,7 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     protected int $totalnominal = 0;
     private $isRegistered = false;
     //private static $records = [];
+    
 
     public function __construct(public Collection $records)
     {
@@ -67,12 +69,18 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     public function map($payroll): array
     {
         static $index = 1;
-        if ($payroll->dep_apb == 2) {
+
+        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
+        if ($dep_apb == 2) {
             $total_dibayarkan = $payroll->total_bunga;
         } else {
             $total_dibayarkan = $payroll->nominal;
         }
-        //dd($payroll);
+        // dd([
+        //     'dep_apb' => $dep_apb,
+        //     'total_dibayarkan' => $total_dibayarkan,
+        //     'payroll' => $payroll,
+        // ]);
         return [
             [
                 $index++,

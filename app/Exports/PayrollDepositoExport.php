@@ -40,8 +40,20 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
             break;
     }
 
-    $total_dibayarkan = ($payroll->dep_apb == "2") ? $payroll->total_bunga : $payroll->nominal;
-    //dd($total_dibayarkan);
+    $angka = $payroll->dep_abp;
+
+    if ($angka == 2) {
+        $total_dibayarkan = $payroll->total_bunga;
+    } else {
+        $total_dibayarkan = $payroll->nominal;
+    }
+
+    // dd([
+    //     'dep_apb' => $angka,
+    //     'total_dibayarkan' => $total_dibayarkan,
+    //     'payroll' => $payroll,
+    // ]);
+    
     //dd($payroll);
 
     return [

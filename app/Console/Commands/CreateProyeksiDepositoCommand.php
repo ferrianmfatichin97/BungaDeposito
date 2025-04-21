@@ -68,7 +68,7 @@ class CreateProyeksiDepositoCommand extends Command
         } else {
             $daysToCheck = [$today->day];
         }
-
+ 
         //$daysToCheck = [19,20,21];
 
 

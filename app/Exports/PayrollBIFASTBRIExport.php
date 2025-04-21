@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Auth;
 use App\Events\UserActivityLogged;
+use App\Models\PayrollDeposito;
 
 class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeadings, WithColumnFormatting, WithEvents, ShouldAutoSize, WithCustomCsvSettings
 {
@@ -49,7 +50,8 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     public function map($payroll): array
     {
         static $index = 1;
-        if ($payroll->dep_apb == 2) {
+        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
+        if ($dep_apb == 2) {
             $total_dibayarkan = $payroll->total_bunga;
         } else {
             $total_dibayarkan = $payroll->nominal;

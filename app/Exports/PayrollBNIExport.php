@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Auth;
 use App\Events\UserActivityLogged;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use App\Models\PayrollDeposito;
 
 
 class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithCustomCsvSettings, WithEvents
@@ -44,10 +45,16 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
 
     public function map($payroll): array
     {
+        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
+        if ($dep_apb == 2) {
+            $total_dibayarkan = $payroll->total_bunga;
+        } else {
+            $total_dibayarkan = $payroll->nominal;
+        }
         return [
                 $payroll->norek_tujuan,
                 $payroll->nama_rekening,
-                $payroll->nominal,
+                $payroll->total_dibayarkan,
                 '',
                 '',
                 '',

@@ -20,6 +20,7 @@ use Maatwebsite\Excel\Events\BeforeExport;
 use Maatwebsite\Excel\Events\BeforeWriting;
 use Maatwebsite\Excel\Events\BeforeSheet;
 use Maatwebsite\Excel\Events\AfterSheet;
+use App\Models\PayrollDeposito;
 
 
 class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings, ShouldAutoSize, WithCustomCsvSettings, WithEvents
@@ -50,17 +51,20 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
         //dd($payroll);
         static $index = 1;
         static $angka = "8";
-        $esokHari = 'Budep ' . date('d', strtotime('+1 day'));
+        //$esokHari = 'Budep ' . date('d', strtotime('+1 day'));
+        $esokHari = 'Budep ' . date('d M Y', strtotime('+1 day'));
+        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
 
-        if ($payroll->dep_apb == '2') {
+        if ($dep_apb == 2) {
             $total_dibayarkan = $payroll->total_bunga;
         } else {
             $total_dibayarkan = $payroll->nominal;
         }
-        dd([
-            'total_dibayarkan' => $total_dibayarkan,
-            'payroll' => $payroll,
-        ]);
+        // dd([
+        //     'dep_apb' => $dep_apb,
+        //     'total_dibayarkan' => $total_dibayarkan,
+        //     'payroll' => $payroll,
+        // ]);
         return [
             $payroll->norek_tujuan,
             $payroll->nama_nasabah,
@@ -79,7 +83,6 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             '',
             '',
             'N',
-            'N',
             '',
             '',
             '',
@@ -101,6 +104,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             '',
             '',
             '',
+            'OUR',
             'EPD' . $index++,
         ];
     }
