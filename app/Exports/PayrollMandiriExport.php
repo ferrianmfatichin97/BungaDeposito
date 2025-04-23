@@ -50,16 +50,18 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
     {
         //dd($payroll);
         static $index = 1;
-        static $angka = "8";
-        //$esokHari = 'Budep ' . date('d', strtotime('+1 day'));
-        $esokHari = 'Budep ' . date('d M Y', strtotime('+1 day'));
-        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
-
-        if ($dep_apb == 2) {
-            $total_dibayarkan = $payroll->total_bunga;
-        } else {
-            $total_dibayarkan = $payroll->nominal;
-        }
+        static $angka = "008";
+        $esokHari = 'Budep ' . date('d M y', strtotime('+1 day'));
+        //$dep_apb = PayrollDeposito::find(49)->dep_abp;
+        // $abp = $payroll->dep_abp;
+        // $saldo = "7500000"; 
+        // $saldo_awal = $payroll->saldo_valuta_awal;
+        
+        // $total_dibayarkan = $payroll->nominal; 
+        
+        // if ($abp == 2 || $saldo_awal == $saldo) {
+        //     $total_dibayarkan = $payroll->total_bunga; 
+        // }
         // dd([
         //     'dep_apb' => $dep_apb,
         //     'total_dibayarkan' => $total_dibayarkan,
@@ -72,7 +74,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
             '',
             '',
             'IDR',
-            $total_dibayarkan,
+            $payroll->nominal,
             $esokHari,
             $payroll->norek_deposito,
             'IBU',

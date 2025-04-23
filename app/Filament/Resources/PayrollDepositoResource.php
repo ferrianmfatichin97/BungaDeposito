@@ -100,6 +100,12 @@ class PayrollDepositoResource extends Resource
                         '2' => 'danger',
                         '3' => 'gray',
                     }),
+                TextColumn::make('dep_abp')
+                    ->label('Kode Abp'),
+                TextColumn::make('saldo_valuta_awal')
+                    ->alignment(Alignment::Center)
+                    ->formatStateUsing(fn(PayrollDeposito $record): string => 'Rp ' . number_format($record->saldo_valuta_awal, 0, '.', '.'))
+                    ->summarize(Sum::make()->label('Total')->money('IDR')),
             ])
             ->defaultSort('tanggal_bayar')
             ->filters([

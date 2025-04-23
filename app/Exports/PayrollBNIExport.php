@@ -30,13 +30,13 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
     private $isRegistered = false;
 
     public function __construct(public Collection $records)
-{
-    $this->totalCount = $this->records->count();
+    {
+        $this->totalCount = $this->records->count();
 
-    $this->norek_tujuan = $this->records->first()->norek_tujuan;
+        $this->norek_tujuan = $this->records->first()->norek_tujuan;
 
-    $this->totalnominal = $this->records->sum('nominal');
-}
+        $this->totalnominal = $this->records->sum('nominal');
+    }
 
     public function collection()
     {
@@ -45,33 +45,38 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
 
     public function map($payroll): array
     {
-        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
-        if ($dep_apb == 2) {
-            $total_dibayarkan = $payroll->total_bunga;
-        } else {
-            $total_dibayarkan = $payroll->nominal;
-        }
+        //$dep_apb = PayrollDeposito::find(49)->dep_abp;
+        // $angka = $payroll->dep_abp;
+        // $saldo = "7500000"; 
+        // $saldo_awal = $payroll->saldo_valuta_awal;
+        
+        // $total_dibayarkan = $payroll->nominal; 
+        
+        // if ($angka == 2 || $saldo_awal == $saldo) {
+        //     $total_dibayarkan = $payroll->total_bunga; 
+        // }
+        
         return [
-                $payroll->norek_tujuan,
-                $payroll->nama_rekening,
-                $payroll->total_dibayarkan,
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                'N',
-                '',
-                '',
-                'N',
+            $payroll->norek_tujuan,
+            $payroll->nama_rekening,
+            $payroll->nominal,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            'N',
+            '',
+            '',
+            'N',
         ];
     }
 
@@ -86,16 +91,16 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
         return [
 
             [
-            $date,
-            $counthead,
+                $date,
+                $counthead,
             ],
-              [
+            [
                 'P',
                 $date2,
                 '16245966',
                 $count,
                 $totalnominal,
-              ]
+            ]
         ];
     }
 

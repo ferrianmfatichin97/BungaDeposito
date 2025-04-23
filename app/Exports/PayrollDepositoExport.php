@@ -25,49 +25,51 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
     }
 
     public function map($payroll): array
-{
-    static $index = 1;
+    {
+        static $index = 1;
 
-    switch ($payroll->bank_tujuan) {
-        case 'BRI':
-            $tf_via = 'BRI';
-            break;
-        case 'MANDIRI':
-            $tf_via = 'MANDIRI';
-            break;
-        default:
-            $tf_via = 'BI-FAST';
-            break;
+        switch ($payroll->bank_tujuan) {
+            case 'BRI':
+                $tf_via = 'BRI';
+                break;
+            case 'MANDIRI':
+                $tf_via = 'MANDIRI';
+                break;
+            default:
+                $tf_via = 'BI-FAST';
+                break;
+        }
+
+        // $angka = $payroll->dep_abp;
+        // $saldo = "7500000"; 
+        // $saldo_awal = $payroll->saldo_valuta_awal;
+        
+        // $total_dibayarkan = $payroll->nominal; 
+        
+        // if ($angka == 2 || $saldo_awal == $saldo) {
+        //     $total_dibayarkan = $payroll->total_bunga; 
+        // }
+
+        // dd([
+        //     'dep_apb' => $angka,
+        //     'total_dibayarkan' => $total_dibayarkan,
+        //     'payroll' => $payroll,
+        // ]);
+
+        //dd($payroll);
+
+        return [
+            $index++,
+            $payroll->nama_nasabah,
+            $payroll->norek_deposito,
+            "'" . $payroll->norek_tujuan,
+            $payroll->bank_tujuan,
+            $payroll->nominal,
+            $tf_via,
+            $payroll->tanggal_bayar,
+            $payroll->nama_rekening,
+        ];
     }
-
-    $angka = $payroll->dep_abp;
-
-    if ($angka == 2) {
-        $total_dibayarkan = $payroll->total_bunga;
-    } else {
-        $total_dibayarkan = $payroll->nominal;
-    }
-
-    // dd([
-    //     'dep_apb' => $angka,
-    //     'total_dibayarkan' => $total_dibayarkan,
-    //     'payroll' => $payroll,
-    // ]);
-    
-    //dd($payroll);
-
-    return [
-        $index++,
-        $payroll->nama_nasabah,
-        $payroll->norek_deposito,
-        "'".$payroll->norek_tujuan,
-        $payroll->bank_tujuan,
-        $total_dibayarkan,
-        $tf_via,
-        $payroll->tanggal_bayar,
-        $payroll->nama_rekening,
-    ];
-}
 
     public function headings(): array
     {

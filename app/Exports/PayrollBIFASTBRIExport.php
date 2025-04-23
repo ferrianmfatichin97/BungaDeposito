@@ -50,13 +50,21 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     public function map($payroll): array
     {
         static $index = 1;
-        $dep_apb = PayrollDeposito::find(49)->dep_abp; 
-        if ($dep_apb == 2) {
-            $total_dibayarkan = $payroll->total_bunga;
-        } else {
-            $total_dibayarkan = $payroll->nominal;
-        }
-       // dd($payroll);
+        //$dep_apb = PayrollDeposito::find(49)->dep_abp;
+        // $angka = $payroll->dep_abp;
+        // $saldo = "7500000"; 
+        // $saldo_awal = $payroll->saldo_valuta_awal;
+        
+        // $total_dibayarkan = $payroll->nominal; 
+        
+        // if ($angka == 2 || $saldo_awal == $saldo) {
+        //     $total_dibayarkan = $payroll->total_bunga; 
+        // }
+        // dd([
+        //     'dep_apb' => $dep_apb,
+        //     'total_dibayarkan' => $total_dibayarkan,
+        //     'payroll' => $payroll,
+        // ]);
         return [
             $index++,
             '052701000324307',
@@ -67,7 +75,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
             $payroll->norek_tujuan,
             '00',
             $payroll->kode_bank,
-            $total_dibayarkan,
+            $payroll->nominal,
             '99',
             $payroll->norek_deposito,
             'Budep' . date('dm', strtotime('+1 day')) . $this->empat_digit_terakhir[$index - 2],

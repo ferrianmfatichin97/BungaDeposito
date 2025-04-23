@@ -50,14 +50,14 @@ class ListPayrollDepositos extends ListRecords
                 ->icon('heroicon-o-plus')
                 ->color('primary'),
 
-                // Actions\ExportAction::make()
-                // ->exporter(PayrollDepositoExporter::class)
-                // ->label('Export')
-                // ->icon('heroicon-o-document-arrow-down')
-                // ->color('primary'),
-                // //->fileName(fn(Export $export): string => "Rekening Tujuan Transfer Pembayaran Bunga Deposito-{$export->getKey()}.xlsx"),
+            // Actions\ExportAction::make()
+            // ->exporter(PayrollDepositoExporter::class)
+            // ->label('Export')
+            // ->icon('heroicon-o-document-arrow-down')
+            // ->color('primary'),
+            // //->fileName(fn(Export $export): string => "Rekening Tujuan Transfer Pembayaran Bunga Deposito-{$export->getKey()}.xlsx"),
 
-                Actions\Action::make('export1')
+            Actions\Action::make('export1')
                 ->label('Export')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
@@ -67,11 +67,11 @@ class ListPayrollDepositos extends ListRecords
                     $year = $currentDate->format('Y');
 
                     $tanggalBayarGrouped = ProyeksiDeposito::select('tanggal_bayar')
-                    ->groupBy('tanggal_bayar')
-                    ->get();
+                        ->groupBy('tanggal_bayar')
+                        ->get();
 
                     $tanggalString = implode('_', $tanggalBayarGrouped->pluck('tanggal_bayar')->toArray());
-                    $fileName = 'Rekening Tujuan Transfer Pembayaran Bunga Deposito_' . $tanggalString .'_'.$month.'_'.$year.'.xlsx';
+                    $fileName = 'Rekening Tujuan Transfer Pembayaran Bunga Deposito_' . $tanggalString . '_' . $month . '_' . $year . '.xlsx';
 
                     return Excel::download(new PayrollDepositoExport(), $fileName);
                 }),
@@ -82,11 +82,23 @@ class ListPayrollDepositos extends ListRecords
                     try {
                         DB::transaction(function () {
                             $getdata = ProyeksiDeposito::withRekeningTransfer()->get();
-                            //dd($getdata);
+
                             $insertData = [];
 
                             foreach ($getdata as $data) {
                                 $rekening = $data->rekening;
+                                $abp = $data->dep_abp;
+                                $saldo = "7500000";
+                                $saldo_awal = $data->saldo_valuta_awal;
+                                $total_dibayarkan = $data->total_bayar;
+    
+                                if ($abp == 2 || $saldo_awal == $saldo) {
+                                    $total_dibayarkan = $data->total_bunga;
+                                }
+                                
+                                if ($total_dibayarkan == 0) {
+                                    $total_dibayarkan = $data->total_bayar;
+                                }
 
                                 $entry = [
                                     'norek_deposito' => $data['rek_deposito'],
@@ -96,11 +108,12 @@ class ListPayrollDepositos extends ListRecords
                                     'bank_tujuan' => $rekening->bank_tujuan ?? 0,
                                     'kode_bank' => $rekening->kode_bank ?? null,
                                     'nama_rekening' => $rekening->nama_rekening ?? 0,
-                                    'nominal' => $data['total_bayar'],
+                                    'nominal' => $total_dibayarkan,
                                     'total_bunga' => $data['total_bunga'],
                                     'jatuh_tempo' => $data['jatuh_tempo'],
                                     'status' => $data['status'],
                                     'dep_abp' => $data['dep_abp'],
+                                    'saldo_valuta_awal' => $data['saldo_valuta_awal'],
                                     'currency' => self::DEFAULT_CURRENCY,
                                     'emailcorporate' => self::DEFAULT_EMAIL,
                                     'ibuobu' => self::DEFAULT_IBUOBU,

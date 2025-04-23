@@ -27,6 +27,7 @@ class PayrollDeposito extends Model
         'jatuh_tempo',
         'status',
         'dep_abp',
+        'saldo_valuta_awal',
         'tanggal_bayar',
         'total_bunga',
         'currency',

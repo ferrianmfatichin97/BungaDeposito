@@ -126,7 +126,9 @@ class RekeningTransfer extends Model
                 "MUAMALAT" => "MUABIDJA",
                 "ALLO BANK" => "ALOBIDJA",
                 "BLU BCA" => "ROYBIDJ1",
-                "SEABANK" => "KSEBIDJ1",
+                "SEABANK" => "KSEBIDJ1", 
+                "Bank Jago" => "JAGBIDJA", 
+                "BANK JAGO" => "JAGBIDJA", 
             ];
 
             $model->kode_bank = $bankCodes[$model->bank_tujuan] ?? null;

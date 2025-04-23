@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('jatuh_tempo')->nullable();
             $table->string('status')->nullable();
             $table->string('dep_apb')->nullable();
+            $table->string('saldo_valuta_awal')->nullable();
             $table->string('tanggal_bayar')->nullable();
             $table->string('emailcorporate')->nullable();
             $table->string('ibuobu')->nullable();
