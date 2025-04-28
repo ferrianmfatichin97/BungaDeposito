@@ -87,7 +87,7 @@ class CreateProyeksiDepositoCommand extends Command
                 DB::raw('ROUND(((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12) * 0.2)) AS total_pajak'),
                 DB::raw('ROUND((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12)) - ROUND(((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12) * 0.2)) AS total_bayar'),
                 'd.dep_tujuanpeng AS tujuan_penggunaan',
-                DB::raw('IFNULL(LPAD(DAY(d.dep_tgl_valuta), 2, "0"), "01") AS tanggal_bayar'),
+                DB::raw('IFNULL(LPAD(DAY(d.dep_tgl_jthtempo), 2, "0"), "01") AS tanggal_bayar'),
                 'd.dep_tgl_jthtempo AS jatuh_tempo',
                 'd.dep_status AS status',
                 'p.pelengkap_pajak_bebas AS pelengkap_pajak_bebas',
@@ -95,7 +95,7 @@ class CreateProyeksiDepositoCommand extends Command
             )
             ->where('d.dep_status', 1)
             ->where('d.dep_tabungan', '')
-            ->whereIn(DB::raw('DAY(d.dep_tgl_valuta)'), $daysToCheck)
+            ->whereIn(DB::raw('DAY(d.dep_tgl_jthtempo)'), $daysToCheck)
             ->get();
     }
 }

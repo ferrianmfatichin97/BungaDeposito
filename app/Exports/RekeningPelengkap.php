@@ -54,7 +54,7 @@ class RekeningPelengkap implements FromCollection, WithMapping, WithHeadings, Sh
                 'Nama Deposan',
                 'norek_tujuan',
                 'Bank Tujuan',
-                'Nama Sesuai Rekening',
+                'Nama Rekening',
                 'Nominal',
                 'Tgl Bayar',
                 'Status',
