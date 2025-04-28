@@ -139,7 +139,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
     {
         return [
             'delimiter' => ',',
-            //'enclosure' => '',
+            'enclosure' => '',
             'use_bom' => true,
             'output_encoding' => 'UTF-8',
         ];
