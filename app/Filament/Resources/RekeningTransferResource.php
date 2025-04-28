@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Exports\RekeningTransferExporter;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use Filament\Tables\Actions\ExportAction;
 use Filament\Tables\Table;
 use App\Models\RekeningTransfer;
 use Filament\Resources\Resource;
@@ -49,6 +51,10 @@ class RekeningTransferResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(RekeningTransferExporter::class)
+             ])
             ->columns([
                 Tables\Columns\TextColumn::make('norek_deposito')
                     ->searchable(),

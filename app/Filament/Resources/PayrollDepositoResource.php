@@ -87,7 +87,7 @@ class PayrollDepositoResource extends Resource
                     ->date()
                     ->sortable()
                     ->alignment(Alignment::Center),
-                //TextColumn::make('ibuobu'),
+                
                 IconColumn::make('status')
                     ->alignment(Alignment::Center)
                     ->icon(fn(string $state): string => match ($state) {
@@ -118,25 +118,6 @@ class PayrollDepositoResource extends Resource
                 Tables\Filters\Filter::make('bank_tujuan2')
                     ->label('BI Fast')
                     ->query(fn(Builder $query): Builder => $query->whereNotIn('bank_tujuan', ['BRI', 'MANDIRI'])),
-
-                // Tables\Filters\Filter::make('bank_tujuan3')
-                //     ->label('Non BI Fast')
-                //     ->query(fn(Builder $query): Builder => $query->whereIn('bank_tujuan', ['BRI', 'MANDIRI'])),
-
-                // Tables\Filters\SelectFilter::make('bank_tujuan')
-                // ->label('Pilih Bank Tujuan')
-                // ->options([
-                //     'bi_fast' => 'BI Fast',
-                //     'non_bi_fast' => 'Non BI Fast',
-                // ])
-                // ->query(function (Builder $query, $value) {
-                //     if ($value === 'bi_fast') {
-                //         return $query->whereNotIn('bank_tujuan', ['BRI', 'MANDIRI']);
-                //     } elseif ($value === 'non_bi_fast') {
-                //         return $query->whereIn('bank_tujuan', ['BRI', 'MANDIRI']);
-                //     }
-                //     return $query; // Kembalikan query tanpa filter jika tidak ada pilihan
-                // }),
 
                 SelectFilter::make('tanggal_bayar')
                     ->label('Tanggal Bayar')
@@ -276,20 +257,12 @@ class PayrollDepositoResource extends Resource
         $deposito = $record->deposito;
 
         if ($deposito && $deposito->dep_tgl_jthtempo->isToday()) {
-            //if ($deposito && $deposito->dep_tgl_jthtempo == '2025-03-01') {
+           
             $record->status = 'Tidak Aktif';
             $record->save();
         }
         log::info('Berhasil Save' . $record);
     }
-
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     return parent::getEloquentQuery()
-    //         ->withoutGlobalScopes([
-    //             SoftDeletingScope::class,
-    //         ]);
-    // }
 
     // public static function canViewAny(): bool
     // {

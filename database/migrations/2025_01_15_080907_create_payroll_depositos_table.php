@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('total_bunga',20,0)->nullable();
             $table->string('jatuh_tempo')->nullable();
             $table->string('status')->nullable();
-            $table->string('dep_apb')->nullable();
+            $table->string('dep_abp')->nullable();
             $table->string('saldo_valuta_awal')->nullable();
             $table->string('tanggal_bayar')->nullable();
             $table->string('emailcorporate')->nullable();

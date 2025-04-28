@@ -59,17 +59,17 @@ class CreateProyeksiDepositoCommand extends Command
         $today = Carbon::tomorrow();
         $dayOfMonth = $today->day;
 
-        // if ($today->isSaturday()) {
-        //     $daysToCheck = [
-        //         $today->day,
-        //         $today->copy()->addDay()->day,
-        //         $today->copy()->addDays(2)->day
-        //     ];
-        // } else {
-        //     $daysToCheck = [$today->day];
-        // }
+        if ($today->isSaturday()) {
+            $daysToCheck = [
+                $today->day,
+                $today->copy()->addDay()->day,
+                $today->copy()->addDays(2)->day
+            ];
+        } else {
+            $daysToCheck = [$today->day];
+        }
  
-        $daysToCheck = [26,27,28];
+        //$daysToCheck = [26,27,28];
 
 
         return DB::connection('mysql_REMOTE')->table('data_deposito_master as d')

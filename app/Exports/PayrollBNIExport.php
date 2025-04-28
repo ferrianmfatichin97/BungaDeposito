@@ -45,16 +45,6 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
 
     public function map($payroll): array
     {
-        //$dep_apb = PayrollDeposito::find(49)->dep_abp;
-        // $angka = $payroll->dep_abp;
-        // $saldo = "7500000"; 
-        // $saldo_awal = $payroll->saldo_valuta_awal;
-        
-        // $total_dibayarkan = $payroll->nominal; 
-        
-        // if ($angka == 2 || $saldo_awal == $saldo) {
-        //     $total_dibayarkan = $payroll->total_bunga; 
-        // }
         
         return [
             $payroll->norek_tujuan,

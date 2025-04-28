@@ -105,7 +105,7 @@ class ProyeksiDepositoResource extends Resource
                     ->sortable()
                     ->alignment(Alignment::Center)
                     ->formatStateUsing(function ($state) {
-                        return 'Rp ' . number_format($state, 0, ',', '.'); // Menambahkan simbol Rp dan memformat angka
+                        return 'Rp ' . number_format($state, 0, ',', '.');
                     }),
                 Tables\Columns\TextColumn::make('bunga')
                     ->numeric()
@@ -139,7 +139,7 @@ class ProyeksiDepositoResource extends Resource
                     ->sortable()
                     ->alignment(Alignment::Center)
                     ->formatStateUsing(function ($state) {
-                        return 'Rp ' . number_format($state, 0, ',', '.'); // Menambahkan simbol Rp dan memformat angka
+                        return 'Rp ' . number_format($state, 0, ',', '.'); 
                     }),
                 Tables\Columns\TextColumn::make('tujuan_penggunaan')
                     ->searchable()

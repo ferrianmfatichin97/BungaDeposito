@@ -70,21 +70,6 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
     {
         static $index = 1;
 
-        //$dep_apb = PayrollDeposito::find(49)->dep_abp; 
-        // $angka = $payroll->dep_abp;
-        // $saldo = "7500000"; 
-        // $saldo_awal = $payroll->saldo_valuta_awal;
-        
-        // $total_dibayarkan = $payroll->nominal; 
-        
-        // if ($angka == 2 || $saldo_awal == $saldo) {
-        //     $total_dibayarkan = $payroll->total_bunga; 
-        // }
-        // dd([
-        //     'dep_apb' => $dep_apb,
-        //     'total_dibayarkan' => $total_dibayarkan,
-        //     'payroll' => $payroll,
-        // ]);
         return [
             [
                 $index++,
