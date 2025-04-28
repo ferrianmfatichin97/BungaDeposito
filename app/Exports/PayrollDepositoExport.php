@@ -21,7 +21,7 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
 
     public function collection()
     {
-        return PayrollDeposito::all();
+        return PayrollDeposito::orderBy('tanggal_bayar')->get();
     }
 
     public function map($payroll): array
@@ -39,24 +39,6 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
                 $tf_via = 'BI-FAST';
                 break;
         }
-
-        // $angka = $payroll->dep_abp;
-        // $saldo = "7500000"; 
-        // $saldo_awal = $payroll->saldo_valuta_awal;
-        
-        // $total_dibayarkan = $payroll->nominal; 
-        
-        // if ($angka == 2 || $saldo_awal == $saldo) {
-        //     $total_dibayarkan = $payroll->total_bunga; 
-        // }
-
-        // dd([
-        //     'dep_apb' => $angka,
-        //     'total_dibayarkan' => $total_dibayarkan,
-        //     'payroll' => $payroll,
-        // ]);
-
-        //dd($payroll);
 
         return [
             $index++,
@@ -89,36 +71,51 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
 
     public function registerEvents(): array
     {
-        // $totalNominalByBank = DB::table('payroll_depositos')
-        //     ->select('bank_tujuan', DB::raw('SUM(nominal) AS total_nominal'))
-        //     ->groupBy('bank_tujuan')
-        //     ->get();
-
-        $totalNominalByBank = DB::table('payroll_depositos')
-            ->select(DB::raw("
-                CASE
-                    WHEN bank_tujuan IN ('MANDIRI', 'BRI') THEN bank_tujuan
-                    ELSE 'BI-FAST'
-                END AS bank_group,
-                SUM(nominal) AS total_nominal
-            "))
-            ->groupBy('bank_group')
+        $totalNominalByDateBankAndTV = DB::table('payroll_depositos')
+            ->select(
+                'tanggal_bayar',
+                DB::raw("
+                     CASE
+                         WHEN bank_tujuan = 'BRI' THEN 'BRI'
+                         WHEN bank_tujuan = 'MANDIRI' THEN 'MANDIRI'
+                         ELSE 'BI-FAST'
+                     END AS tv_via"),
+                DB::raw('SUM(nominal) as total_nominal')
+            )
+            ->groupBy('tanggal_bayar', 'tv_via')
+            ->orderBy('tanggal_bayar')
             ->get();
 
         return [
-            AfterSheet::class => function (AfterSheet $event) use ($totalNominalByBank) {
+            AfterSheet::class => function (AfterSheet $event) use ($totalNominalByDateBankAndTV) {
                 $rowCount = count($this->collection()) + 2;
 
+                $event->sheet->setCellValue('A' . ($rowCount + 1), 'Tanggal');
                 $event->sheet->setCellValue('B' . ($rowCount + 1), 'TV VIA');
                 $event->sheet->setCellValue('C' . ($rowCount + 1), 'TOTAL NOMINAL');
 
+                $currentDate = null;
+                $currentTV = null;
                 $row = $rowCount + 2;
-                foreach ($totalNominalByBank as $item) {
-                    $event->sheet->setCellValue('B' . $row, $item->bank_group);
-                    $event->sheet->setCellValue('C' . $row, number_format($item->total_nominal, 2, '.', ''));
-                    $row++;
+
+                foreach ($totalNominalByDateBankAndTV as $item) {
+                    if ($currentDate !== $item->tanggal_bayar || $currentTV !== $item->tv_via) {
+                        $currentDate = $item->tanggal_bayar;
+                        $currentTV = $item->tv_via;
+
+                        $event->sheet->setCellValue('A' . $row, $currentDate);
+                        $event->sheet->setCellValue('B' . $row, $currentTV);
+                        $event->sheet->setCellValue('C' . $row, number_format($item->total_nominal, 2, '.', ''));
+                        $row++;
+                    } else {
+                        
+                        $event->sheet->setCellValue('B' . $row, $item->bank_tujuan);
+                        $event->sheet->setCellValue('C' . $row, number_format($item->total_nominal, 2, '.', ''));
+                        $row++;
+                    }
                 }
 
+                $event->sheet->setCellValue('A' . $row, '');
                 $event->sheet->setCellValue('B' . $row, '');
                 $event->sheet->setCellValue('C' . $row, '');
             },

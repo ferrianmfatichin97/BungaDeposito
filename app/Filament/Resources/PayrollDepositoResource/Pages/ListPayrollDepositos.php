@@ -50,13 +50,6 @@ class ListPayrollDepositos extends ListRecords
                 ->icon('heroicon-o-plus')
                 ->color('primary'),
 
-            // Actions\ExportAction::make()
-            // ->exporter(PayrollDepositoExporter::class)
-            // ->label('Export')
-            // ->icon('heroicon-o-document-arrow-down')
-            // ->color('primary'),
-            // //->fileName(fn(Export $export): string => "Rekening Tujuan Transfer Pembayaran Bunga Deposito-{$export->getKey()}.xlsx"),
-
             Actions\Action::make('export1')
                 ->label('Export')
                 ->icon('heroicon-o-document-arrow-down')

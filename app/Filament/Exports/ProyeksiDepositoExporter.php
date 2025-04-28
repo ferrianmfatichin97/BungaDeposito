@@ -34,12 +34,6 @@ class ProyeksiDepositoExporter extends Exporter
                 ->label('Total Bayar'),
             ExportColumn::make('status')
                 ->label('Status'),
-            // ExportColumn::make('jangka_waktu'),
-            // ExportColumn::make('bunga'),
-            // ExportColumn::make('tujuan_penggunaan'),
-            // ExportColumn::make('jatuh_tempo'),
-            // ExportColumn::make('created_at'),
-            // ExportColumn::make('updated_at'),
         ];
     }
 

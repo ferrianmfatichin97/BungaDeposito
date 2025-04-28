@@ -48,7 +48,7 @@ class AdminPanelProvider extends PanelProvider
                 AutoLogoutPlugin::make()
                     ->color(Color::Emerald)
                     // ->withoutWarning()
-                    ->logoutAfter(Carbon::SECONDS_PER_MINUTE * 60),
+                    ->logoutAfter(Carbon::SECONDS_PER_MINUTE * 15),
                     // ->withoutTimeLeft()
                     // ->timeLeftText('')
             ])
