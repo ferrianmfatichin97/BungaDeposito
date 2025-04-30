@@ -55,6 +55,9 @@ class ListPayrollDepositos extends ListRecords
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
                 ->action(function () {
+                    $payrolls = $this->getFilteredTableQuery();
+                    $this->applySortingToTableQuery($payrolls);
+
                     $currentDate = new \DateTime();
                     $month = $currentDate->format('m');
                     $year = $currentDate->format('Y');
@@ -66,7 +69,7 @@ class ListPayrollDepositos extends ListRecords
                     $tanggalString = implode('_', $tanggalBayarGrouped->pluck('tanggal_bayar')->toArray());
                     $fileName = 'Rekening Tujuan Transfer Pembayaran Bunga Deposito_' . $tanggalString . '_' . $month . '_' . $year . '.xlsx';
 
-                    return Excel::download(new PayrollDepositoExport(), $fileName);
+                    return Excel::download(new PayrollDepositoExport($payrolls), $fileName);
                 }),
 
             Actions\Action::make('generate')
@@ -84,11 +87,11 @@ class ListPayrollDepositos extends ListRecords
                                 $saldo = "7500000";
                                 $saldo_awal = $data->saldo_valuta_awal;
                                 $total_dibayarkan = $data->total_bayar;
-    
+
                                 if ($abp == 2 || $saldo_awal == $saldo) {
                                     $total_dibayarkan = $data->total_bunga;
                                 }
-                                
+
                                 if ($total_dibayarkan == 0) {
                                     $total_dibayarkan = $data->total_bayar;
                                 }
