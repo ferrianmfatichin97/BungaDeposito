@@ -3,15 +3,16 @@
 namespace App\Exports;
 
 use App\Models\PayrollDeposito;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithMapping;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeSheet;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Illuminate\Support\Facades\DB;
 
 class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, WithHeadings, ShouldAutoSize
 {
@@ -39,6 +40,14 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
                 $tf_via = 'BI-FAST';
                 break;
         }
+        
+        //$tomorrow = new Carbon('2025-04-30');
+        $tomorrow = Carbon::tomorrow();
+        $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
+        
+        if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
+            $payroll->tanggal_bayar = $tomorrow->day;   
+        }
 
         return [
             $index++,
@@ -48,7 +57,7 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
             $payroll->bank_tujuan,
             $payroll->nominal,
             $tf_via,
-            $payroll->tanggal_bayar,
+            $tomorrow->day,
             $payroll->nama_rekening,
         ];
     }

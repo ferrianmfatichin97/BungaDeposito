@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\ProyeksiDeposito;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CreateProyeksiDepositoCommand extends Command
 {
@@ -56,19 +57,26 @@ class CreateProyeksiDepositoCommand extends Command
 
     private function getDepositoData()
     {
-        $today = Carbon::tomorrow();
-        $dayOfMonth = $today->day;
+        //$tomorrow = new Carbon('2025-04-30');
+        $tomorrow = Carbon::tomorrow();
+        $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
 
-        if ($today->isSaturday()) {
-            $daysToCheck = [
-                $today->day,
-                $today->copy()->addDay()->day,
-                $today->copy()->addDays(2)->day
-            ];
-        } else {
-            $daysToCheck = [$today->day];
+        $daysToCheck = [$tomorrow->day];
+
+        if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
+            for ($i = $lastDayOfMonth->day + 1; $i <= 31; $i++) {
+                $daysToCheck[] = $i;
+            }
         }
- 
+
+        if ($tomorrow->isSaturday()) {
+            $daysToCheck[] = $tomorrow->copy()->addDays()->day;
+            $daysToCheck[] = $tomorrow->copy()->addDays(2)->day;
+        }
+
+        //Log::info("Pengecekan Hari Sabtu :  " . $daysToCheck);
+
+
         //$daysToCheck = [26,27,28];
 
 
