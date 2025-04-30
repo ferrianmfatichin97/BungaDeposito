@@ -16,13 +16,20 @@ use Maatwebsite\Excel\Events\BeforeSheet;
 
 class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, WithHeadings, ShouldAutoSize
 {
+    private $payrolls;
+
+    public function __construct($payrolls)
+    {
+        $this->payrolls = $payrolls;
+    }
+
     /**
      * @return \Illuminate\Support\Collection
      */
 
     public function collection()
     {
-        return PayrollDeposito::orderBy('tanggal_bayar')->get();
+        return $this->payrolls->get();
     }
 
     public function map($payroll): array
@@ -40,13 +47,13 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
                 $tf_via = 'BI-FAST';
                 break;
         }
-        
+
         //$tomorrow = new Carbon('2025-04-30');
         $tomorrow = Carbon::tomorrow();
         $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
-        
+
         if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
-            $payroll->tanggal_bayar = $tomorrow->day;   
+            $payroll->tanggal_bayar = $tomorrow->day;
         }
 
         return [
@@ -80,7 +87,8 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
 
     public function registerEvents(): array
     {
-        $totalNominalByDateBankAndTV = DB::table('payroll_depositos')
+        $cp = clone $this->payrolls;
+        $totalNominalByDateBankAndTV = $cp
             ->select(
                 'tanggal_bayar',
                 DB::raw("
@@ -117,7 +125,6 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
                         $event->sheet->setCellValue('C' . $row, number_format($item->total_nominal, 2, '.', ''));
                         $row++;
                     } else {
-                        
                         $event->sheet->setCellValue('B' . $row, $item->bank_tujuan);
                         $event->sheet->setCellValue('C' . $row, number_format($item->total_nominal, 2, '.', ''));
                         $row++;
