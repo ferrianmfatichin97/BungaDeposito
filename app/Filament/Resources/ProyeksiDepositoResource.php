@@ -89,10 +89,7 @@ class ProyeksiDepositoResource extends Resource
                     ->alignment(Alignment::Center),
                 Tables\Columns\TextColumn::make('nama_nasabah')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('jangka_waktu')
-                    ->numeric()
-                    ->alignment(Alignment::Center)
-                    ->sortable(),
+                
                 Tables\Columns\TextColumn::make('nilai_bunga')
                     ->numeric()
                     ->sortable()
@@ -141,12 +138,10 @@ class ProyeksiDepositoResource extends Resource
                     ->formatStateUsing(function ($state) {
                         return 'Rp ' . number_format($state, 0, ',', '.'); 
                     }),
-                Tables\Columns\TextColumn::make('tujuan_penggunaan')
-                    ->searchable()
-                    ->alignment(Alignment::Center),
-                Tables\Columns\TextColumn::make('tanggal_bayar')
-                    ->searchable()
-                    ->alignment(Alignment::Center),
+                
+                // Tables\Columns\TextColumn::make('tanggal_bayar')
+                //     ->searchable()
+                //     ->alignment(Alignment::Center),
                 Tables\Columns\TextColumn::make('jatuh_tempo')
                     ->date()
                     ->sortable()
