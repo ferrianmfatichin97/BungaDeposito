@@ -58,26 +58,23 @@ class CreateProyeksiDepositoCommand extends Command
     private function getDepositoData()
     {
         //$tomorrow = new Carbon('2025-04-30');
-        $tomorrow = Carbon::tomorrow();
-        $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
+        // $tomorrow = Carbon::tomorrow();
+        // $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
 
-        $daysToCheck = [$tomorrow->day];
+        // $daysToCheck = [$tomorrow->day];
 
-        if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
-            for ($i = $lastDayOfMonth->day + 1; $i <= 31; $i++) {
-                $daysToCheck[] = $i;
-            }
-        }
+        // if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
+        //     for ($i = $lastDayOfMonth->day + 1; $i <= 31; $i++) {
+        //         $daysToCheck[] = $i;
+        //     }
+        // }
 
-        if ($tomorrow->isSaturday()) {
-            $daysToCheck[] = $tomorrow->copy()->addDays()->day;
-            $daysToCheck[] = $tomorrow->copy()->addDays(2)->day;
-        }
+        // if ($tomorrow->isSaturday()) {
+        //     $daysToCheck[] = $tomorrow->copy()->addDays()->day;
+        //     $daysToCheck[] = $tomorrow->copy()->addDays(2)->day;
+        // }
 
-        //Log::info("Pengecekan Hari Sabtu :  " . $daysToCheck);
-
-
-        //$daysToCheck = [26,27,28];
+       $daysToCheck = [2];
 
 
         return DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
