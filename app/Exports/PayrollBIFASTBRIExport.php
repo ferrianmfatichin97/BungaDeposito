@@ -53,7 +53,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     {
         static $index = 1;
         $day = $this->tanggal_bayar;
-        $tanggal = 'Budep ' . date('Ym').'0'. $day;
+        $tanggal = 'Budep ' . date('Ym'). $day;
         
         return [
             $index++,
@@ -68,7 +68,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
             $payroll->nominal,
             '99',
             $payroll->norek_deposito,
-            'Budep' . $tanggal,
+            $tanggal,
             '',
         ];
     }

@@ -157,35 +157,10 @@ class PayrollBRIExport implements FromCollection, WithMapping, WithHeadings, Wit
 
 
             },
-            // BeforeWriting::class => function (BeforeWriting $event) {
-            //     $this->beforeWriting($event);
-            // },
+           
         ];
     }
 
-    // public function beforeWriting(BeforeWriting $event)
-    // {
-    //     Log::info('Function BeforeWriting Called');
-
-    //     if ($this->isRegistered) {
-    //         return [];
-    //     }
-
-    //     $this->isRegistered = true;
-
-    //     $processedIds = [];
-
-    //     foreach ($this->records as $record) {
-    //         if (!in_array($record->id, $processedIds)) {
-    //             try {
-    //                 Event::dispatch(new UserActivityLogged('Export BRI', Auth::id(), $record->id));
-    //             } catch (\Exception $e) {
-    //                 Log::error('Error dispatching event: ' . $e->getMessage());
-    //             }
-    //             $processedIds[] = $record->id;
-    //         }
-    //     }
-    // }
 
     protected function ambilEmpatDigitTerakhir(array $norek_tujuan): array
     {
