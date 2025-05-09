@@ -29,39 +29,45 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
 
     protected int $totalCount;
     protected int $norek_tujuan;
+    protected int $tanggal_bayar;
     protected int $totalnominal = 0;
     private $isRegistered = false;
 
 
-    public function __construct(public Collection $records)
+    public function __construct(public collection $records)
     {
-        $this->totalCount = $this->records->count();
 
-        $this->norek_tujuan = $this->records->first()->norek_tujuan;
-
-        $this->totalnominal = $this->records->sum('nominal');
+        //dd($records);
+        $this->totalCount = $records->count();
+        $this->norek_tujuan = $records->first()->norek_tujuan;
+        $this->totalnominal = $records->sum('nominal');
+        $this->tanggal_bayar = $records->first()->tanggal_bayar;
     }
+
     public function collection()
     {
         return $this->records;
     }
 
-    public function map($payroll): array
+    public function map($records): array
     {
-        //dd($payroll);
+        //dd($records);
         static $index = 1;
         static $angka = "008";
-        $esokHari = 'Budep ' . date('d M y', strtotime('+1 day'));
+        $day = $records->tanggal_bayar;
+        $tanggal = 'Budep '. $day . date(' M y');
+        //dd($esokHari);
+
         return [
-            $payroll->norek_tujuan,
-            $payroll->nama_nasabah,
+            $records->norek_tujuan,
+            $records->nama_nasabah,
             '',
             '',
             '',
             'IDR',
-            $payroll->nominal,
-            $esokHari,
-            $payroll->norek_deposito,
+            $records->nominal,
+            $tanggal,
+            $records->norek_deposito,
             'IBU',
             $angka,
             '',
@@ -99,14 +105,15 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
 
     public function headings(): array
     {
+        $day = $this->tanggal_bayar;
+        $tanggal = 'Budep ' . date('Ym').'0'. $day;
         $total = $this->totalCount;
-        $date = date('Ymd', strtotime('+1 day'));
         $totalnominal = $this->totalnominal;
 
         return [
 
             'P',
-            $date,
+            $tanggal,
             '1670018119908',
             $total,
             $totalnominal,

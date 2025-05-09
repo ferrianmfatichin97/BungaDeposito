@@ -51,13 +51,12 @@ class ListProyeksiDepositos extends ListRecords
                     ]),
                 ])
                 ->action(function (array $data): void {
-                    // Retrieve the dates from the input data
                     $tanggalAwal = $data['tanggal_awal'];
                     $tanggalAkhir = $data['tanggal_akhir'];
             
-                    // Get the days to check based on the date range
                     $daysToCheck = range(date('d', strtotime($tanggalAwal)), date('d', strtotime($tanggalAkhir)));
-            
+                    //$daysToCheck = [10];
+                    
                     // dd([
                     //     'tanggal_awal' => $tanggalAwal,
                     //     'tanggal_akhir' => $tanggalAkhir,
@@ -87,9 +86,10 @@ class ListProyeksiDepositos extends ListRecords
                         )
                         ->where('d.dep_status', 1)
                         ->where('d.dep_tabungan', '')
-                        ->whereBetween('d.dep_tgl_jthtempo', [$tanggalAwal, $tanggalAkhir])
                         ->whereIn(DB::raw('DAY(d.dep_tgl_jthtempo)'), $daysToCheck)
                         ->get();
+
+                        //dd($deposits);
             
                     
                     foreach ($deposits as $deposit) {
@@ -119,32 +119,11 @@ class ListProyeksiDepositos extends ListRecords
                         ]);
                     }
             
-                    //$this->info('Deposit summary created successfully.');
-            
                     Notification::make()
                         ->title('Download Proyeksi Deposito executed successfully')
                         ->success()
                         ->send();
                 }),
-
-            // Actions\Action::make('createProyeksiDeposito')
-            //     ->label('Generate Data')
-            //     ->action(function () {
-            //         $exitCode = Artisan::call('app:proyeksideposito');
-
-            //         if ($exitCode === 0) {
-            //             Notification::make()
-            //                 ->title('Generate Data Berhasil')
-            //                 ->success()
-            //                 ->send();
-            //         } else {
-            //             Notification::make()
-            //                 ->title('Generate Data Gagal')
-            //                 ->danger()
-            //                 ->send();
-            //         }
-            //     })
-            //     ->color('primary'),
 
             Actions\Action::make('Clear Data')
                 ->action(function () {

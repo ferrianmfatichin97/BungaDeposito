@@ -20,6 +20,7 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
 
     public function __construct($payrolls)
     {
+       // dd($payrolls);
         $this->payrolls = $payrolls;
     }
 
@@ -29,7 +30,9 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
 
     public function collection()
     {
-        return $this->payrolls->get();
+        $data = $this->payrolls->get();
+        //dd($data);
+        return $data;
     }
 
     public function map($payroll): array
@@ -56,6 +59,8 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
             $payroll->tanggal_bayar = $tomorrow->day;
         }
 
+        $tanggalBayar = Carbon::createFromFormat('d-m-Y', $payroll->tanggal_bayar);
+
         return [
             $index++,
             $payroll->nama_nasabah,
@@ -64,7 +69,7 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
             $payroll->bank_tujuan,
             $payroll->nominal,
             $tf_via,
-            $tomorrow->day,
+            $tanggalBayar,
             $payroll->nama_rekening,
         ];
     }

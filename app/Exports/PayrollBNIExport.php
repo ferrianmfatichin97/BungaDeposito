@@ -27,10 +27,12 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
     protected int $totalCount;
     protected int $norek_tujuan;
     protected int $totalnominal = 0;
+    protected int $tanggal_bayar;
     private $isRegistered = false;
 
     public function __construct(public Collection $records)
     {
+        $this->tanggal_bayar = $this->records->first()->tanggal_bayar;
         $this->totalCount = $this->records->count();
 
         $this->norek_tujuan = $this->records->first()->norek_tujuan;
@@ -75,7 +77,9 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
         $count = $this->totalCount;
         $counthead = $count + 2;
         $date = date('Y/m/d/_H.i.s');
-        $date2 = date('Ymd');
+        $day = $this->tanggal_bayar;
+        $tanggal = 'Budep ' . date('Ym').'0'. $day;
+        //$date2 = date('Ymd');
         $totalnominal = $this->totalnominal;
 
         return [
@@ -86,7 +90,7 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
             ],
             [
                 'P',
-                $date2,
+                $tanggal,
                 '16245966',
                 $count,
                 $totalnominal,
@@ -108,34 +112,6 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
     {
         return $this->totalnominal;
     }
-
-    // public function registerEvents(): array
-    // {
-    //     Log::info('registerEvents function is called');
-
-    //     if ($this->isRegistered) {
-    //         Log::info('Events already registered, returning empty array.');
-    //         return [];
-    //     }
-
-    //     $this->isRegistered = true;
-
-    //     Log::info('registerEvents called from ' . debug_backtrace()[1]['function']);
-    //     $processedIds = [];
-
-    //     if (empty($this->records)) {
-    //         Log::warning('No records found to process.');
-    //     }
-
-    //     foreach ($this->records as $record) {
-    //         if (!in_array($record->id, $processedIds)) {
-    //             Log::info('Dispatching event for record ID: ' . $record->id);
-    //             Event::dispatch(new UserActivityLogged('Export BNI', Auth::id(), $record->id));
-    //             $processedIds[] = $record->id;
-    //         }
-    //     }
-    //     return $processedIds;
-    // }
 
     public function getOptions(): array
     {

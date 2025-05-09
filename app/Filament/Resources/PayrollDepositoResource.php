@@ -9,6 +9,7 @@ use App\Exports\PayrollBRIExport;
 use App\Exports\PayrollMandiriExport;
 use App\Filament\Resources\PayrollDepositoResource\Pages;
 use App\Models\PayrollDeposito;
+use Carbon\Carbon;
 use DeepCopy\Filter\Filter;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -65,6 +66,7 @@ class PayrollDepositoResource extends Resource
     {
         return $table
             ->heading('Tabel Payroll Deposito')
+            ->striped()
             ->columns([
                 TextColumn::make('norek_deposito')->label('No.Referensi')->searchable()->copyable()->copyMessage('Berhasil Di Copy'),
                 TextColumn::make('nama_nasabah'),
@@ -87,7 +89,7 @@ class PayrollDepositoResource extends Resource
                     ->date()
                     ->sortable()
                     ->alignment(Alignment::Center),
-                
+
                 IconColumn::make('status')
                     ->alignment(Alignment::Center)
                     ->icon(fn(string $state): string => match ($state) {
@@ -202,34 +204,59 @@ class PayrollDepositoResource extends Resource
                         ->icon('heroicon-o-document-arrow-down')
                         ->color('primary')
                         ->action(function (Collection $records) {
-                            //dd($records);
-                            $date = date('d-m-Y', strtotime('+1 day'));
-                            $fileName = 'Budep_Mandiri_' . $date . '.csv';
+
+                            $tanggal_bayar = $records->pluck('tanggal_bayar')->first();
+
+                            $bulan = date('m');
+                            $tahun = date('Y');
+
+                            $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
+
+                            $fileName = 'Budep_Mandiri_' . $tanggal . '.csv';
+                            // dd([
+                            //     'records' => $records,
+                            //     'filename' => $fileName,
+                            // ]);
                             return Excel::download(new PayrollMandiriExport($records), $fileName);
                         }),
                     Tables\Actions\BulkAction::make('export1')
                         ->label('Format BNI')
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
-                            $date = date('d-m-Y', strtotime('+1 day'));
-                            $fileName = 'Budep_BNI_' . $date . '.csv';
+                            $tanggal_bayar = $records->pluck('tanggal_bayar')->first();
+
+                            $bulan = date('m');
+                            $tahun = date('Y');
+
+                            $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
+                            $fileName = 'Budep_BNI_' . $tanggal . '.csv';
+                            
                             return Excel::download(new PayrollBNIExport($records), $fileName);
                         }),
                     Tables\Actions\BulkAction::make('export2')
                         ->label('Format BRI')
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
-                            $date = date('d-m-Y', strtotime('+1 day'));
-                            $fileName = 'Budep_BRI_' . $date . '.csv';
+                            $tanggal_bayar = $records->pluck('tanggal_bayar')->first();
+
+                            $bulan = date('m');
+                            $tahun = date('Y');
+
+                            $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
+                            $fileName = 'Budep_BRI_' . $tanggal . '.csv';
                             return Excel::download(new PayrollBRIExport($records), $fileName);
                         }),
                     Tables\Actions\BulkAction::make('export3')
                         ->label('Format BI-Fast BRI')
                         ->icon('heroicon-o-document-arrow-down')
                         ->action(function (Collection $records) {
-                            $date = date('d-m-Y', strtotime('+1 day'));
-                            //dd($records);
-                            $fileName = 'Budep_BIFast BRI_' . $date . '.csv';
+                            $tanggal_bayar = $records->pluck('tanggal_bayar')->first();
+
+                            $bulan = date('m');
+                            $tahun = date('Y');
+
+                            $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
+                            $fileName = 'Budep_BIFast BRI_' . $tanggal . '.csv';
                             return Excel::download(new PayrollBIFASTBRIExport($records), $fileName);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
@@ -257,7 +284,7 @@ class PayrollDepositoResource extends Resource
         $deposito = $record->deposito;
 
         if ($deposito && $deposito->dep_tgl_jthtempo->isToday()) {
-           
+
             $record->status = 'Tidak Aktif';
             $record->save();
         }

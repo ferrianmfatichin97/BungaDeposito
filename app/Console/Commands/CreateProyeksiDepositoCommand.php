@@ -74,7 +74,7 @@ class CreateProyeksiDepositoCommand extends Command
             $daysToCheck[] = $tomorrow->copy()->addDays(2)->day;
         }
 
-       //$daysToCheck = [2];
+      // $daysToCheck = [10,11,12,13,14];
 
 
         return DB::connection('mysql_REMOTE')->table('data_deposito_master as d')

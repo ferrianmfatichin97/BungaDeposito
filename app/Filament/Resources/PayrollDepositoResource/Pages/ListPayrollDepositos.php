@@ -2,19 +2,24 @@
 
 namespace App\Filament\Resources\PayrollDepositoResource\Pages;
 
-use Filament\Actions;
+use App\Exports\PayrollDepositoExport;
+use App\Exports\PayrollMandiriExport;
+use App\Filament\Exports\PayrollDepositoExporter;
+use App\Filament\Resources\PayrollDepositoResource;
 use App\Models\PayrollDeposito;
 use App\Models\ProyeksiDeposito;
+use Filament\Actions;
+use Filament\Actions\Exports\Models\Export;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ListRecords;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Facades\Excel;
-use Filament\Resources\Pages\ListRecords;
-use Filament\Actions\Exports\Models\Export;
-use App\Filament\Exports\PayrollDepositoExporter;
-use App\Exports\PayrollDepositoExport;
-use App\Filament\Resources\PayrollDepositoResource;
 
 
 class ListPayrollDepositos extends ListRecords
@@ -71,6 +76,55 @@ class ListPayrollDepositos extends ListRecords
 
                     return Excel::download(new PayrollDepositoExport($payrolls), $fileName);
                 }),
+
+            // Actions\Action::make('proyeksiDeposito')
+            //     ->label('Download Data')
+            //     ->form([
+            //         Grid::make(1)->schema([
+            //             Select::make('format_bank')
+            //                 ->label('Format Bank')
+            //                 ->options([
+            //                     'mandiri' => 'MANDIRI',
+            //                     'bri' => 'BRI',
+            //                     'bni' => 'BNI',
+            //                     'bi-fast' => 'BI-FAST',
+            //                     'all' => 'ALL',
+            //                 ])
+            //                 ->required(),
+            //         ]),
+            //     ])
+            //     ->action(function (array $data): void {
+            //         $formatBank = $data['format_bank'];
+            //         $records = $this->getFilteredTableQuery()->get();
+            //         switch ($formatBank) {
+            //             case 'mandiri':
+            //                 $this->exportToMandiri($records);
+            //                 break;
+
+            //             case 'bri':
+            //                 $this->exportToBRI();
+            //                 break;
+
+            //             case 'bni':
+            //                 $this->exportToBNI();
+            //                 break;
+
+            //             case 'bi-fast':
+            //                 $this->exportToBIFast();
+            //                 break;
+
+            //             case 'all':
+            //                 $this->exportToAll();
+            //                 break;
+
+            //             default:
+            //                 Notification::make()
+            //                     ->title('Format Bank Tidak Valid')
+            //                     ->danger()
+            //                     ->send();
+            //                 break;
+            //         }
+            //     }),
 
             Actions\Action::make('generate')
                 ->label('Generate Data')
@@ -177,6 +231,55 @@ class ListPayrollDepositos extends ListRecords
 
         Notification::make()
             ->title('Data Berhasil Di Hapus')
+            ->success()
+            ->send();
+    }
+
+    public function exportToMandiri($records)
+    {
+        $tanggal_bayar = $records->pluck('tanggal_bayar')->first();
+        $bulan = date('m');
+        $tahun = date('Y');
+
+        $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
+
+        $fileName = 'Budep_Mandiri_' . $tanggal . '.csv';
+
+        return Excel::download(new PayrollMandiriExport($records), $fileName);
+    }
+
+    public function exportToBRI()
+    {
+        Notification::make()
+            ->title('Berhasil Export BRI')
+            ->body('')
+            ->success()
+            ->send();
+    }
+
+    public function exportToBNI()
+    {
+        Notification::make()
+            ->title('Berhasil Export BNI')
+            ->body('')
+            ->success()
+            ->send();
+    }
+
+    public function exportToBIFast()
+    {
+        Notification::make()
+            ->title('Berhasil Export BI-FAST')
+            ->body('')
+            ->success()
+            ->send();
+    }
+
+    public function exportToAll()
+    {
+        Notification::make()
+            ->title('Berhasil Export Semua Format')
+            ->body('')
             ->success()
             ->send();
     }

@@ -27,10 +27,12 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     protected string $norek_tujuan_string;
     protected array $empat_digit_terakhir;
     protected int $totalnominal = 0;
+    protected int $tanggal_bayar;
     private $isRegistered = false;
 
     public function __construct(public Collection $records)
     {
+        $this->tanggal_bayar = $this->records->first()->tanggal_bayar;
         $this->totalCount = $this->records->count();
         $this->norek_tujuan_string = $this->records->pluck('norek_tujuan')->implode(', ');
         $this->empat_digit_terakhir = $this->ambilEmpatDigitTerakhir($this->records->pluck('norek_deposito')->toArray());
@@ -50,6 +52,8 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     public function map($payroll): array
     {
         static $index = 1;
+        $day = $this->tanggal_bayar;
+        $tanggal = 'Budep ' . date('Ym').'0'. $day;
         
         return [
             $index++,
@@ -64,7 +68,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
             $payroll->nominal,
             '99',
             $payroll->norek_deposito,
-            'Budep' . date('dm', strtotime('+1 day')) . $this->empat_digit_terakhir[$index - 2],
+            'Budep' . $tanggal,
             '',
         ];
     }
