@@ -23,13 +23,13 @@ class ListRekeningTransfers extends ListRecords
             \EightyNine\ExcelImport\ExcelImportAction::make()
                 ->color("primary"),
 
-            Actions\Action::make('Clear Data')
-                ->action(function () {
-                    $this->truncateTable();
-                })
-                ->icon('heroicon-o-trash')
-                ->requiresConfirmation()
-                ->color('danger'),
+            // Actions\Action::make('Clear Data')
+            //     ->action(function () {
+            //         $this->truncateTable();
+            //     })
+            //     ->icon('heroicon-o-trash')
+            //     ->requiresConfirmation()
+            //     ->color('danger'),
         ];
     }
 

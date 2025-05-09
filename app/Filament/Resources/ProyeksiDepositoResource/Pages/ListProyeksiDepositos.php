@@ -125,13 +125,13 @@ class ListProyeksiDepositos extends ListRecords
                         ->send();
                 }),
 
-            // Actions\Action::make('Clear Data')
-            //     ->action(function () {
-            //         $this->truncateTable();
-            //     })
-            //     ->icon('heroicon-o-trash')
-            //     ->requiresConfirmation()
-            //     ->color('danger'),
+            Actions\Action::make('Clear Data')
+                ->action(function () {
+                    $this->truncateTable();
+                })
+                ->icon('heroicon-o-trash')
+                ->requiresConfirmation()
+                ->color('danger'),
         ];
     }
 
