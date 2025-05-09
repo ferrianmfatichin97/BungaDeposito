@@ -77,8 +77,8 @@ class PayrollBNIExport implements FromCollection, WithMapping, WithHeadings, Sho
         $count = $this->totalCount;
         $counthead = $count + 2;
         $date = date('Y/m/d/_H.i.s');
-        $day = $this->tanggal_bayar;
-        $tanggal = 'Budep ' . date('Ym').'0'. $day;
+        $day = str_pad($this->tanggal_bayar, 2, '0', STR_PAD_LEFT);
+        $tanggal = 'Budep ' . date('Ym'). $day;
         //$date2 = date('Ymd');
         $totalnominal = $this->totalnominal;
 
