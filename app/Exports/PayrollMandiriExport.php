@@ -106,7 +106,7 @@ class PayrollMandiriExport implements FromCollection, WithMapping, WithHeadings,
     public function headings(): array
     {
         $day = str_pad($this->tanggal_bayar, 2, '0', STR_PAD_LEFT);
-        $tanggal = 'Budep ' . date('Ym'). $day;
+        $tanggal = date('Ym'). $day;
         $total = $this->totalCount;
         $totalnominal = $this->totalnominal;
 

@@ -44,7 +44,7 @@ class ListProyeksiDepositos extends ListRecords
                         DatePicker::make('tanggal_awal')
                             ->label('Tanggal Awal')
                             ->required(),
-            
+
                         DatePicker::make('tanggal_akhir')
                             ->label('Tanggal Akhir')
                             ->required(),
@@ -53,15 +53,25 @@ class ListProyeksiDepositos extends ListRecords
                 ->action(function (array $data): void {
                     $tanggalAwal = $data['tanggal_awal'];
                     $tanggalAkhir = $data['tanggal_akhir'];
-            
+
                     $daysToCheck = range(date('d', strtotime($tanggalAwal)), date('d', strtotime($tanggalAkhir)));
                     //$daysToCheck = [10];
-                    
+
                     // dd([
                     //     'tanggal_awal' => $tanggalAwal,
                     //     'tanggal_akhir' => $tanggalAkhir,
                     //     'daysToCheck' => $daysToCheck,
                     // ]);
+                    // $tomorrow = Carbon::tomorrow();
+                    // $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
+
+                    // $daysToCheck = [$tomorrow->day];
+
+                    // if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
+                    //     for ($i = $lastDayOfMonth->day + 1; $i <= 31; $i++) {
+                    //         $daysToCheck[] = $i;
+                    //     }
+                    // }
 
                     $deposits = DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
                         ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
@@ -89,18 +99,19 @@ class ListProyeksiDepositos extends ListRecords
                         ->whereIn(DB::raw('DAY(d.dep_tgl_jthtempo)'), $daysToCheck)
                         ->get();
 
-                        //dd($deposits);
-            
-                    
+                    //dd($deposits);
+
+
                     foreach ($deposits as $deposit) {
                         $total_bayar = $deposit->total_bayar;
                         $total_bunga = $deposit->total_bunga;
-            
+
                         if ($deposit->pelengkap_pajak_bebas == 1) {
                             $total_bayar = $total_bunga;
                             $total_bunga = 0;
                         }
-            
+
+
                         ProyeksiDeposito::create([
                             'rek_deposito' => $deposit->rek_deposito,
                             'nama_nasabah' => $deposit->nama_nasabah,
@@ -118,7 +129,7 @@ class ListProyeksiDepositos extends ListRecords
                             'dep_abp' => $deposit->dep_abp,
                         ]);
                     }
-            
+
                     Notification::make()
                         ->title('Download Proyeksi Deposito executed successfully')
                         ->success()

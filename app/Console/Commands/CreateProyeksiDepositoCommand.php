@@ -69,10 +69,10 @@ class CreateProyeksiDepositoCommand extends Command
             }
         }
 
-        if ($tomorrow->isSaturday()) {
-            $daysToCheck[] = $tomorrow->copy()->addDays()->day;
-            $daysToCheck[] = $tomorrow->copy()->addDays(2)->day;
-        }
+        // if ($tomorrow->isSaturday()) {
+        //     $daysToCheck[] = $tomorrow->copy()->addDays()->day;
+        //     $daysToCheck[] = $tomorrow->copy()->addDays(2)->day;
+        // }
 
       // $daysToCheck = [10,11,12,13,14];
 
