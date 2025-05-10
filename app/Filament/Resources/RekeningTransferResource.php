@@ -37,6 +37,8 @@ class RekeningTransferResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('bank_tujuan')
                     ->maxLength(255),
+                Forms\Components\TextInput::make('kode_bank')
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('nama_rekening')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('nominal')
