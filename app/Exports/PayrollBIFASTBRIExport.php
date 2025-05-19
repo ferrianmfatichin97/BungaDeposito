@@ -53,7 +53,7 @@ class PayrollBIFASTBRIExport implements FromCollection, WithMapping, WithHeading
     {
         static $index = 1;
         $day = str_pad($this->tanggal_bayar, 2, '0', STR_PAD_LEFT);
-        $tanggal = 'Budep '. $day . date('m');
+        $tanggal = 'Budep'. $day . date('m');
         
         return [
             $index++,

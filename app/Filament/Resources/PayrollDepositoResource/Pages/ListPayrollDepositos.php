@@ -61,6 +61,7 @@ class ListPayrollDepositos extends ListRecords
                 ->color('primary')
                 ->action(function () {
                     $payrolls = $this->getFilteredTableQuery();
+                    //dd($payrolls);
                     $this->applySortingToTableQuery($payrolls);
 
                     $currentDate = new \DateTime();

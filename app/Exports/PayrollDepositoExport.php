@@ -59,7 +59,8 @@ class PayrollDepositoExport implements FromCollection, WithMapping, WithEvents, 
             $payroll->tanggal_bayar = $tomorrow->day;
         }
 
-        $tanggalBayar = Carbon::createFromFormat('d-m-Y', $payroll->tanggal_bayar);
+        $tanggalBayar = $payroll->tanggal_bayar;
+        //$tanggalBayar = '15';
 
         return [
             $index++,

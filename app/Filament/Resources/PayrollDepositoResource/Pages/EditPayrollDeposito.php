@@ -21,6 +21,11 @@ class EditPayrollDeposito extends EditRecord
         ];
     }
 
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function afterSave(): void
     {
         $recordId = $this->record->id;

@@ -33,6 +33,16 @@ class ListRekeningTransfers extends ListRecords
         ];
     }
 
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->previousUrl ?? $this->getResource()::getUrl('index');
+    // }
+
+    // protected function getRedirectUrl(): string
+    // {
+    //     return $this->getResource()::getUrl('view', ['record' => $this->getRecord()]);
+    // }
+
     protected function truncateTable()
     {
         $tableName = 'rekening_transfers';
