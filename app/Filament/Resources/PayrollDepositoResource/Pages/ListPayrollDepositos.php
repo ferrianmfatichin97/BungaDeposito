@@ -74,8 +74,9 @@ class ListPayrollDepositos extends ListRecords
 
                     $tanggalString = implode('_', $tanggalBayarGrouped->pluck('tanggal_bayar')->toArray());
                     $fileName = 'Rekening Tujuan Transfer Pembayaran Bunga Deposito_' . $tanggalString . '_' . $month . '_' . $year . '.xlsx';
-
+                    log::info('Exporting to Excel', ['fileName' => $fileName]);
                     return Excel::download(new PayrollDepositoExport($payrolls), $fileName);
+
                 }),
 
             // Actions\Action::make('proyeksiDeposito')
