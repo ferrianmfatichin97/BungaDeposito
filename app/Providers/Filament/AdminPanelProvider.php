@@ -2,13 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Resources\DashboardResource\Widgets\JumlahDeposito;
+use App\Filament\Resources\DashboardResource\Widgets\MonthlyDeposito;
+use App\Filament\Resources\DashboardResource\Widgets\TopNasabahChart;
+use App\Filament\Widgets\TopNasabahTable;
+use Carbon\Carbon;
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
-use Filament\Enums\ThemeMode;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
@@ -18,7 +23,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Carbon\Carbon;
 use Niladam\FilamentAutoLogout\AutoLogoutPlugin;
 use Rmsramos\Activitylog\ActivitylogPlugin;
 
@@ -73,8 +77,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
+                //Widgets\AccountWidget::class,
                 //Widgets\FilamentInfoWidget::class,
+                JumlahDeposito::class,
+                MonthlyDeposito::class,
+                TopNasabahChart::class,                
             ])
             ->middleware([
                 EncryptCookies::class,
