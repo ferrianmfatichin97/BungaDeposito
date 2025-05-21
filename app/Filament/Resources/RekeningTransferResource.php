@@ -176,20 +176,16 @@ class RekeningTransferResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('norek_tujuan')
                     ->maxLength(255),
-                Forms\Components\Select::make('bank_tujuan')
+                Forms\Components\TextInput::make('bank_tujuan')
                     ->label('Bank Tujuan')
+                    ->required(),
+
+                Forms\Components\Select::make('kode_bank')
                     ->options($bankCodes)
                     ->placeholder('Pilih Bank')
                     ->searchable()
                     ->required()
-                    ->reactive()
-                    ->afterStateUpdated(function ($state, callable $set, callable $get) use ($bankCodes) {
-                        $set('kode_bank', $bankCodes[$state] ?? null);
-                    }),
-
-                Forms\Components\TextInput::make('kode_bank')
-                    ->required()
-                    ->readOnly(true),
+                    ->reactive(),
                 Forms\Components\TextInput::make('nama_rekening')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('nominal')
