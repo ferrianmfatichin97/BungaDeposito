@@ -89,7 +89,7 @@ class ProyeksiDepositoResource extends Resource
                     ->alignment(Alignment::Center),
                 Tables\Columns\TextColumn::make('nama_nasabah')
                     ->searchable(),
-                
+
                 Tables\Columns\TextColumn::make('nilai_bunga')
                     ->numeric()
                     ->sortable()
@@ -136,9 +136,9 @@ class ProyeksiDepositoResource extends Resource
                     ->sortable()
                     ->alignment(Alignment::Center)
                     ->formatStateUsing(function ($state) {
-                        return 'Rp ' . number_format($state, 0, ',', '.'); 
+                        return 'Rp ' . number_format($state, 0, ',', '.');
                     }),
-                
+
                 // Tables\Columns\TextColumn::make('tanggal_bayar')
                 //     ->searchable()
                 //     ->alignment(Alignment::Center),
@@ -165,7 +165,7 @@ class ProyeksiDepositoResource extends Resource
             ->query(ProyeksiDeposito::query())
             ->filters([
                 Tables\Filters\Filter::make('tanpa_rekening')
-                    ->query(fn (Builder $query) => $query->whereDoesntHave('rekening')),
+                    ->query(fn(Builder $query) => $query->whereDoesntHave('rekening')),
             ])
             //], layout: FiltersLayout::AboveContent)
             ->actions([
@@ -178,7 +178,17 @@ class ProyeksiDepositoResource extends Resource
                         ->icon('heroicon-o-document-arrow-down')
                         ->color('primary')
                         ->action(function (Collection $records) {
-                            $date = date('d-m-Y');
+                            //dd($records);
+                            $firstRecord = $records->first();
+                            if ($firstRecord && isset($firstRecord->tanggal_bayar)) {
+                                $day = $firstRecord->tanggal_bayar;
+                                $month = date('m'); 
+                                $year = date('Y'); 
+                                $dateString = "$year-$month-$day"; 
+                                $date = \Carbon\Carbon::parse($dateString)->format('d-m-Y'); // Convert to d-m-Y
+                            } else {
+                                $date = date('d-m-Y');
+                            }
                             $fileName = 'Data_Rekening_Pembayaran_' . $date . '(Tidak Lengkap).xlsx';
                             return Excel::download(new RekeningPelengkap($records), $fileName);
                         }),

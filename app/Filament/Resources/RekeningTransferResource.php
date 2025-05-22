@@ -163,6 +163,7 @@ class RekeningTransferResource extends Resource
             'MBBEIDJA' => 'MAYBANK SYARIAH - MBBEIDJA',
             'CTCBIDJA' => 'CTBC INDONESIA - CTCBIDJA',
             'BICNIDJA' => 'BANK COMMONWEALTH - BICNIDJA',
+            "JAGBIDJA" => "BANK JAGO - JAGBIDJA", 
         ];
 
         $reversedBankCodes = array_flip($bankCodes);
