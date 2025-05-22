@@ -185,7 +185,7 @@ class ProyeksiDepositoResource extends Resource
                                 $month = date('m'); 
                                 $year = date('Y'); 
                                 $dateString = "$year-$month-$day"; 
-                                $date = \Carbon\Carbon::parse($dateString)->format('d-m-Y'); // Convert to d-m-Y
+                                $date = \Carbon\Carbon::parse($dateString)->format('d-m-Y');
                             } else {
                                 $date = date('d-m-Y');
                             }
