@@ -139,9 +139,9 @@ class ProyeksiDepositoResource extends Resource
                         return 'Rp ' . number_format($state, 0, ',', '.');
                     }),
 
-                // Tables\Columns\TextColumn::make('tanggal_bayar')
-                //     ->searchable()
-                //     ->alignment(Alignment::Center),
+                Tables\Columns\TextColumn::make('tanggal_bayar')
+                    ->searchable()
+                    ->alignment(Alignment::Center),
                 Tables\Columns\TextColumn::make('jatuh_tempo')
                     ->date()
                     ->sortable()
