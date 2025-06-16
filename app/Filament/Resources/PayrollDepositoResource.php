@@ -55,8 +55,8 @@ class PayrollDepositoResource extends Resource
             Forms\Components\TextInput::make('jatuh_tempo')->required(),
             Forms\Components\Select::make('status')
                 ->options([
-                    'AKTIF' => 'AKTIF',
-                    'TIDAK AKTIF' => 'TIDAK AKTIF',
+                    '1' => 'AKTIF',
+                    '2' => 'TIDAK AKTIF',
                 ])
                 ->required(),
         ]);

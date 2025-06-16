@@ -55,7 +55,7 @@ class ListProyeksiDepositos extends ListRecords
                     $tanggalAkhir = $data['tanggal_akhir'];
 
                     $daysToCheck = range(date('d', strtotime($tanggalAwal)), date('d', strtotime($tanggalAkhir)));
-                    //$daysToCheck = [10];
+                    //$daysToCheck = [29, 30, 31, 1, 2];
 
                     // dd([
                     //     'tanggal_awal' => $tanggalAwal,
