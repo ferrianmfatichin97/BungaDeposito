@@ -9,6 +9,6 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
-Route::get('/custom-dashboard', [DashboardController::class, 'index'])->name('custom.dashboard');
+Route::get('/dashboard-deposito', [DashboardController::class, 'index'])->name('custom.dashboard');
 
 
