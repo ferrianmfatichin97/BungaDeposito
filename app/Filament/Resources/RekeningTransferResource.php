@@ -126,7 +126,7 @@ class RekeningTransferResource extends Resource
             'MEGAIDJA' => 'BANK MEGA - MEGAIDJA',
             'SYNIIDJ1' => 'BNI SYARIAH - SYNIIDJ1',
             'BBUKIDJA' => 'BUKOPIN - BBUKIDJA',
-            'BSMDIDJA' => 'BSM - BSMDIDJA',
+            'BSMDIDJA' => 'BSI - BSMDIDJA',
             'BUSTIDJ1' => 'BANK BISNIS - BUSTIDJ1',
             'RIPAIDJ1' => 'BANK ANDARA - RIPAIDJ1',
             'JSABIDJ1' => 'BANK JASA JAKARTA - JSABIDJ1',
@@ -163,7 +163,7 @@ class RekeningTransferResource extends Resource
             'MBBEIDJA' => 'MAYBANK SYARIAH - MBBEIDJA',
             'CTCBIDJA' => 'CTBC INDONESIA - CTCBIDJA',
             'BICNIDJA' => 'BANK COMMONWEALTH - BICNIDJA',
-            "JAGBIDJA" => "BANK JAGO - JAGBIDJA", 
+            "JAGBIDJA" => "BANK JAGO - JAGBIDJA",
         ];
 
         $reversedBankCodes = array_flip($bankCodes);

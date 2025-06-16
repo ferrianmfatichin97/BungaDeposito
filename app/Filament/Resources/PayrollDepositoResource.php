@@ -55,8 +55,8 @@ class PayrollDepositoResource extends Resource
             Forms\Components\TextInput::make('jatuh_tempo')->required(),
             Forms\Components\Select::make('status')
                 ->options([
-                    'AKTIF' => 'AKTIF',
-                    'TIDAK AKTIF' => 'TIDAK AKTIF',
+                    '1' => 'AKTIF',
+                    '2' => 'TIDAK AKTIF',
                 ])
                 ->required(),
         ]);
@@ -230,7 +230,7 @@ class PayrollDepositoResource extends Resource
 
                             $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
                             $fileName = 'Budep_BNI_' . $tanggal . '.csv';
-                            
+
                             return Excel::download(new PayrollBNIExport($records), $fileName);
                         }),
                     Tables\Actions\BulkAction::make('export2')

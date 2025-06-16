@@ -103,6 +103,11 @@ class ListProyeksiDepositos extends ListRecords
 
 
                     foreach ($deposits as $deposit) {
+
+                        // if (str_starts_with($deposit->rek_deposito, '08.')) {
+                        //     continue;
+                        // }
+
                         $total_bayar = $deposit->total_bayar;
                         $total_bunga = $deposit->total_bunga;
 
@@ -131,7 +136,7 @@ class ListProyeksiDepositos extends ListRecords
                     }
 
                     Notification::make()
-                        ->title('Download Proyeksi Deposito executed successfully')
+                        ->title('Penarikan Data Proyeksi Deposito Berhasil')
                         ->success()
                         ->send();
                 }),
