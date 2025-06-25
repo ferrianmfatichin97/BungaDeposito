@@ -151,6 +151,14 @@ return [
         'update_date_on_publish' => true,
     ],
 
+    'mysql_REMOTE' => [
+        // ...
+        'options'   => extension_loaded('pdo_mysql') ? array_filter([
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4',
+            PDO::ATTR_TIMEOUT => 10, // seconds
+        ]) : [],
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Redis Databases
@@ -168,7 +176,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [
