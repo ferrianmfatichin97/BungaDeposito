@@ -18,10 +18,15 @@
     <div class="container py-4">
         <!-- Header dengan logo kiri atas -->
         <nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top shadow-sm">
-            <div class="container-fluid">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <!-- Kiri: Logo dan Judul -->
                 <a class="navbar-brand d-flex align-items-center gap-3 mb-0">
                     <img src="{{ asset('logo.png') }}" alt="Logo" height="50">
                     <span class="fw-bold">Dashboard Deposito</span>
+                </a>
+
+                <a href="{{ route('custom.dashboard') }}" class="btn btn-outline-primary">
+                    Ke Beranda
                 </a>
             </div>
         </nav>

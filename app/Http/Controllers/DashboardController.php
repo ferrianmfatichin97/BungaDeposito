@@ -8,60 +8,11 @@ use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
-    // public function index()
-    // {
-    //     $deposits = DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
-    //         ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
-    //         ->join('data_deposito_pelengkap as p', 'd.dep_rekening', '=', 'p.pelengkap_rekening')
-    //         ->select(
-    //             'd.dep_nilai_valuta',
-    //             DB::raw('(d.dep_nilai_valuta * d.dep_bunga_persen / 100) AS bunga'),
-    //             DB::raw('ROUND((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12)) AS total_bunga'),
-    //             DB::raw('ROUND(((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12) * 0.2)) AS total_pajak'),
-    //             DB::raw('ROUND((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12)) - ROUND(((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12) * 0.2)) AS total_bayar'),
-    //             'd.dep_tgl_jthtempo'
-    //         )
-    //         ->where('d.dep_status', 1)
-    //         ->where('d.dep_tabungan', '')
-    //         ->get();
-
-    //     $topNasabah = DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
-    //         ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
-    //         ->where('d.dep_status', 1)
-    //         ->where('d.dep_tabungan', '')
-    //         ->select(
-    //             'n.nasabah_nama_lengkap',
-    //             DB::raw('SUM(d.dep_nilai_valuta) as total_valuta')
-    //         )
-    //         ->groupBy('n.nasabah_nama_lengkap')
-    //         ->orderByDesc('total_valuta')
-    //         ->limit(10)
-    //         ->get();
-
-    //     return view('dashboard', [
-    //         'jumlahDeposan' => $deposits->count(),
-    //         'totalSaldo' => $deposits->sum('dep_nilai_valuta'),
-    //         'totalBunga' => $deposits->sum('bunga'),
-    //         'totalPajak' => $deposits->sum('total_pajak'),
-    //         'totalBayar' => $deposits->sum('total_bayar'),
-    //         'jatuhTempoBulanIni' => $deposits->filter(function ($item) {
-    //             $tanggal = \Carbon\Carbon::parse($item->dep_tgl_jthtempo);
-    //             return $tanggal->isSameMonth(now()) && $tanggal->isSameYear(now());
-    //         })->count(),
-    //         'totalBayarHariIni' => $deposits->filter(function ($item) {
-    //             $tanggal = \Carbon\Carbon::parse($item->dep_tgl_jthtempo);
-    //             return $tanggal->day === now()->day && $tanggal->between(now(), now()->addYear());
-    //         })->sum('total_bayar'),
-
-    //         'totalBayarHariEsok' => $deposits->filter(function ($item) {
-    //             $tanggal = \Carbon\Carbon::parse($item->dep_tgl_jthtempo);
-    //             return $tanggal->day === now()->addDay()->day && $tanggal->between(now(), now()->addYear());
-    //         })->sum('total_bayar'),
-
-    //         'tanggal' => now()->format('d-M-Y'),
-    //         'topNasabah' => $topNasabah,
-    //     ]);
-    // }
+    /**
+     * Display the dashboard with deposito data.
+     *
+     * @return \Illuminate\View\View
+     */
 
     public function index()
     {
@@ -73,14 +24,40 @@ class DashboardController extends Controller
                 'n.nasabah_nama_lengkap as v_nama',
                 'n.nasabah_alamat as v_alamat',
                 'n.nasabah_email as v_email',
-                // 'n.nasabah_ktp as v_nomor_ktp', // ganti ini sesuai hasil real
                 'd.dep_nominal as saldoawal',
                 'd.dep_tgl_awal as v_tglbuka',
                 'd.dep_tgl_jthtempo as v_jthtempo',
                 'd.dep_bunga_persen as v_bunga',
                 'd.dep_status as v_status'
             )
+            ->where('d.dep_tgl_jthtempo', '<', DB::raw('CURDATE()'))
             ->get();
+
+        // $dataDeposito = DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
+        //     ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
+        //     ->join('data_deposito_pelengkap as p', 'd.dep_rekening', '=', 'p.pelengkap_rekening')
+        //     ->select(
+        //         'd.dep_rekening AS rek_deposito',
+        //         'n.nasabah_nama_lengkap AS nama_nasabah',
+        //         'd.dep_jkw AS jangka_waktu',
+        //         'd.dep_bunga_persen AS nilai_bunga',
+        //         'd.dep_nilai_valuta AS saldo_valuta_awal',
+        //         'd.dep_tabungan AS dep_tabungan',
+        //         DB::raw('(d.dep_nilai_valuta * d.dep_bunga_persen / 100) AS bunga'),
+        //         DB::raw('ROUND((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12)) AS total_bunga'),
+        //         DB::raw('ROUND(((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12) * 0.2)) AS total_pajak'),
+        //         DB::raw('ROUND((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12)) - ROUND(((d.dep_nilai_valuta * d.dep_bunga_persen / 100 / 12) * 0.2)) AS total_bayar'),
+        //         'd.dep_tujuanpeng AS tujuan_penggunaan',
+        //         DB::raw('IFNULL(LPAD(DAY(d.dep_tgl_jthtempo), 2, "0"), "01") AS tanggal_bayar'),
+        //         'd.dep_tgl_jthtempo AS jatuh_tempo',
+        //         'd.dep_status AS status',
+        //         'p.pelengkap_pajak_bebas AS pelengkap_pajak_bebas',
+        //         'd.dep_abp AS dep_abp'
+        //     )
+        //     ->where('d.dep_status', 1)
+        //     // ->where('d.dep_tabungan', '')
+        //     // ->whereIn(DB::raw('DAY(d.dep_tgl_jthtempo)'), $daysToCheck)
+        //     ->get();
 
         $totalDeposito = $dataDeposito->unique('v_cif1')->count();
         $totalNominal = $dataDeposito->sum('saldoawal');
@@ -93,6 +70,13 @@ class DashboardController extends Controller
         $pengajuanHariIni = DB::connection('mysql_REMOTE')
             ->table('view_deposito')
             ->whereDate('v_tglbuka', $today)
+            ->count();
+
+        $kemarin = now()->subDay()->toDateString();
+
+        $pengajuankemarin = DB::connection('mysql_REMOTE')
+            ->table('view_deposito')
+            ->whereDate('v_tglbuka', $kemarin)
             ->count();
 
         // Hitung pengajuan bulan ini
@@ -138,12 +122,12 @@ class DashboardController extends Controller
         }
 
         return view('dashboard-deposito', compact(
-            // return view('deposito.dashboard', compact(
             'dataDeposito',
             'totalDeposito',
             'totalDepositoKredit',
             'totalDepositoTabungan',
             'pengajuanHariIni',
+            'pengajuankemarin',
             'pengajuanBulanIni',
             'totalNominal',
             'today',
@@ -158,55 +142,80 @@ class DashboardController extends Controller
 
 
 
-    public function viewDepositoNasabah(Request $request)
-    {
-        $query = DB::connection('mysql_REMOTE')
-            ->table('data_deposito_master as d')
-            ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
-            ->select(
-                'd.dep_nasabah as cif_nasabah',
-                'n.nasabah_nama_lengkap as nama_nasabah',
-                'd.dep_rekening as rekening_deposito',
-                'd.dep_nominal as nominal_deposito',
-                'd.dep_tgl_awal as tgl_buka_deposito',
-                'd.dep_tgl_jthtempo as tgl_jatuh_tempo_deposito',
-                'd.dep_bunga_persen as suku_bunga_deposito',
-                'd.dep_status as status_rekening'
-            );
+    // public function viewDepositoNasabah(Request $request)
+    // {
+    //     $query = DB::connection('mysql_REMOTE')
+    //         ->table('data_deposito_master as d')
+    //         ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
+    //         ->select(
+    //             'd.dep_nasabah as cif_nasabah',
+    //             'n.nasabah_nama_lengkap as nama_nasabah',
+    //             'd.dep_rekening as rekening_deposito',
+    //             'd.dep_nominal as nominal_deposito',
+    //             'd.dep_tgl_awal as tgl_buka_deposito',
+    //             'd.dep_tgl_jthtempo as tgl_jatuh_tempo_deposito',
+    //             'd.dep_bunga_persen as suku_bunga_deposito',
+    //             'd.dep_status as status_rekening'
+    //         );
 
-        // Default: hanya status aktif (1)
-        if ($request->filled('dep_status')) {
-            $query->where('d.dep_status', $request->dep_status);
-        } else {
-            $query->where('d.dep_status', 1); // Default: Aktif
-        }
+    //     // Default: hanya status aktif (1)
+    //     if ($request->filled('dep_status')) {
+    //         $query->where('d.dep_status', $request->dep_status);
+    //     } else {
+    //         $query->where('d.dep_status', 1); // Default: Aktif
+    //     }
 
-        // Pencarian umum
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('d.dep_nasabah', 'like', "%$search%")
-                    ->orWhere('n.nasabah_nama_lengkap', 'like', "%$search%")
-                    ->orWhere('d.dep_rekening', 'like', "%$search%");
-            });
-        }
+    //     // Pencarian umum
+    //     if ($request->filled('search')) {
+    //         $search = $request->search;
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('d.dep_nasabah', 'like', "%$search%")
+    //                 ->orWhere('n.nasabah_nama_lengkap', 'like', "%$search%")
+    //                 ->orWhere('d.dep_rekening', 'like', "%$search%");
+    //         });
+    //     }
 
-        // Filter tanggal jatuh tempo
-        if ($request->filled('filter_date')) {
-            $query->whereDate('d.dep_tgl_jthtempo', $request->filter_date);
-        }
+    //     // Filter tanggal jatuh tempo
+    //     if ($request->filled('filter_date')) {
+    //         $query->whereDate('d.dep_tgl_jthtempo', $request->filter_date);
+    //     }
 
-        $data = $query->get();
-        //dd($data->first());
+    //     $data = $query->get();
+    //     //dd($data->first());
 
-        return view('all-deposito', compact('data'));
-    }
+    //     return view('all-deposito', compact('data'));
+    // }
     // function untuk menampilkan daftar deposito
     public function showDepositoList()
     {
         $dataDeposito = DB::connection('mysql_REMOTE')
             ->table('view_deposito')
             ->get();
+
+        // $dataDeposito = DB::connection('mysql_REMOTE')
+        //     ->table('data_deposito_master as d')
+        //     ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')
+        //     ->join('data_nasabah_orang as o', 'd.dep_nasabah', '=', 'o.nasabah_master')
+        //     ->select(
+        //         'd.dep_nasabah as v_cif1',
+        //         'n.nasabah_nama_lengkap as v_nama1',
+        //         'd.dep_rekening as v_rekening1',
+        //         'o.nasabah_nomor_ktp as v_nomor_ktp',
+        //         'd.dep_tgl_jthtempo as v_tgljtempo',
+        //         'n.nasabah_nama_lengkap as v_nama',
+        //         'n.nasabah_alamat as v_alamat',
+        //         'n.nasabah_email as v_email',
+        //         'd.dep_nominal as saldoawal',
+        //         'd.dep_tgl_awal as v_tglbuka',
+        //         'd.dep_tgl_jthtempo as v_jthtempo',
+        //         'd.dep_bunga_persen as v_bunga',
+        //         'd.dep_bunga_persen as v_sukubunga',
+        //         'd.dep_status as v_status'
+        //     )
+        //     ->where('d.dep_tgl_jthtempo', '<', DB::raw('CURDATE()'))
+        //     ->get();
+
+            //dd($dataDeposito->first());
 
         $nasabahIDs = $dataDeposito->pluck('v_cif1')->unique()->toArray();
 
@@ -321,17 +330,32 @@ class DashboardController extends Controller
     public function showPengajuanHariIni()
     {
         $today = now()->toDateString();
-        //$today = now()->subDay()->toDateString(); // kemarin
-        //$today = now()->addDay()->toDateString(); // besok
         $dataDeposito = DB::connection('mysql_REMOTE')
             ->table('view_deposito')
             ->whereDate('v_tglbuka', $today)
             ->get();
 
-        //dd($dataDeposito->first());
+        $title = 'Pengajuan Deposito Hari Ini';
+        $judul = 'Pengajuan Deposito : ' . \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM Y');
 
-        return view('deposito.pengajuan-hariini', compact('dataDeposito'));
+        return view('deposito.pengajuan-hariini', compact('dataDeposito', 'title', 'judul'));
     }
+
+    public function showPengajuanKemarin()
+    {
+        $today = now()->subDay()->toDateString(); // Tanggal kemarin
+
+        $dataDeposito = DB::connection('mysql_REMOTE')
+            ->table('view_deposito')
+            ->whereDate('v_tglbuka', $today)
+            ->get();
+
+        $title = 'Pengajuan Deposito Kemarin';
+        $judul = 'Data Pengajuan Deposito : ' . \Carbon\Carbon::parse($today)->locale('id')->isoFormat('dddd, D MMMM Y');
+
+        return view('deposito.pengajuan-hariini', compact('dataDeposito', 'title', 'judul'));
+    }
+
     public function showPengajuanBulanIni()
     {
         $now = now();

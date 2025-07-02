@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DashboardKreditController;
 use App\Http\Controllers\DepositoController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
+
 
 
 Route::get('/', function () {
@@ -16,11 +18,14 @@ Route::prefix('deposito')->name('deposito.')->group(function () {
 });
 
 Route::prefix('pengajuan')->name('pengajuan.')->group(function () {
+    Route::get('/kemarin', [DashboardController::class, 'showPengajuanKemarin'])->name('kemarin');
     Route::get('/hariini', [DashboardController::class, 'showPengajuanHariIni'])->name('hariini');
     Route::get('/bulanini', [DashboardController::class, 'showPengajuanBulanIni'])->name('bulanini');
 });
 
 Route::get('/dashboard', [DashboardController::class, 'deposito'])->name('custom.deposito');
 Route::get('/dashboard-deposito', [DashboardController::class, 'index'])->name('custom.dashboard');
+
+Route::get('/dashboard/kredit', [DashboardKreditController::class, 'index'])->name('dashboard.kredit');
 
 

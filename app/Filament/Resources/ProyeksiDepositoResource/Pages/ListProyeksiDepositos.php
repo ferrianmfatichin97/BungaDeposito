@@ -17,6 +17,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Checkbox;
+use Carbon\CarbonPeriod;
 
 class ListProyeksiDepositos extends ListRecords
 {
@@ -48,30 +50,38 @@ class ListProyeksiDepositos extends ListRecords
                         DatePicker::make('tanggal_akhir')
                             ->label('Tanggal Akhir')
                             ->required(),
+
+                        Checkbox::make('fallback_31_ke_30')
+                            ->label('Tarik juga data tgl 31 jika tidak ada')
+                            ->default(true),
                     ]),
                 ])
                 ->action(function (array $data): void {
+
                     $tanggalAwal = $data['tanggal_awal'];
                     $tanggalAkhir = $data['tanggal_akhir'];
 
-                    $daysToCheck = range(date('d', strtotime($tanggalAwal)), date('d', strtotime($tanggalAkhir)));
-                    //$daysToCheck = [29, 30, 31, 1, 2];
+                    // Ambil semua nomor hari dari periode tanggal
+                    $daysToCheck = collect(CarbonPeriod::create($tanggalAwal, $tanggalAkhir))
+                        ->map(fn($date) => (int) $date->format('d'))
+                        ->unique()
+                        ->values()
+                        ->toArray();
+
+                    // Jika fallback 31 ke 30 diaktifkan, dan 31 tidak tersedia (misalnya di Februari)
+                    if ($data['fallback_31_ke_30']) {
+                        if (!in_array(31, $daysToCheck)) {
+                            $daysToCheck[] = 31; // tambahkan 31 secara manual agar tetap dicek
+                        } elseif (in_array(31, $daysToCheck)) {
+                            $daysToCheck[] = 30; // fallback ke 30 jika 31 memang ada
+                        }
+                    }
 
                     // dd([
                     //     'tanggal_awal' => $tanggalAwal,
                     //     'tanggal_akhir' => $tanggalAkhir,
                     //     'daysToCheck' => $daysToCheck,
                     // ]);
-                    // $tomorrow = Carbon::tomorrow();
-                    // $lastDayOfMonth = $tomorrow->copy()->subDays()->endOfMonth();
-
-                    // $daysToCheck = [$tomorrow->day];
-
-                    // if ($lastDayOfMonth->day < 31 && $tomorrow->copy()->addDays()->day === 1) {
-                    //     for ($i = $lastDayOfMonth->day + 1; $i <= 31; $i++) {
-                    //         $daysToCheck[] = $i;
-                    //     }
-                    // }
 
                     $deposits = DB::connection('mysql_REMOTE')->table('data_deposito_master as d')
                         ->join('data_nasabah_master as n', 'd.dep_nasabah', '=', 'n.nasabah_id')

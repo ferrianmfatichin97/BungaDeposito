@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Pengajuan Hari Ini</title>
+    <title>{{ $title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Bootstrap 5 -->
@@ -16,12 +16,18 @@
 
 <body>
     <div class="container py-4">
-         <!-- Header dengan logo kiri atas -->
+
+        <!-- Header dengan logo kiri atas -->
         <nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top shadow-sm">
-            <div class="container-fluid">
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <!-- Kiri: Logo dan Judul -->
                 <a class="navbar-brand d-flex align-items-center gap-3 mb-0">
                     <img src="{{ asset('logo.png') }}" alt="Logo" height="50">
                     <span class="fw-bold">Dashboard Deposito</span>
+                </a>
+
+                <a href="{{ route('custom.dashboard') }}" class="btn btn-outline-primary">
+                    Ke Beranda
                 </a>
             </div>
         </nav>
@@ -32,7 +38,7 @@
         <div class="container">
             <div class="card bg-primary text-white mb-4">
                 <div class="card-body text-center py-3">
-                    <h2 class="mb-0">Pengajuan Hari Ini</h2>
+                    <h2 class="mb-0">{{ $judul }}</h2>
                 </div>
             </div>
         </div>
@@ -41,16 +47,16 @@
             <div class="card-body">
                 @php
                     $kantorMap = [
-                        '00' => 'KP. Manajemen',
+                        // '00' => 'KP. Manajemen',
                         '01' => 'KP. Operasional',
                         '02' => 'KC. Bogor',
                         '03' => 'KC. Depok',
                         '04' => 'KC. Tangerang',
                         '05' => 'KC. Jakarta Timur',
                         '06' => 'KC. Karawang',
-                        '07' => 'KC. Cabangbungin',
+                        '07' => 'KC. Cikarang',
                         '08' => 'KC. Purwokerto',
-                        '09' => 'KC. Cirebon',
+                        // '09' => 'KC. Cirebon',
                     ];
 
                     $pengajuanPerKantor = [];
@@ -69,17 +75,20 @@
                 @endphp
 
                 <div class="row row-cols-1 row-cols-md-3 g-3 mb-4">
-                    @foreach ($pengajuanPerKantor as $kode => $data)
+                    @foreach ($kantorMap as $kode => $namaKantor)
+                        @php
+                            $jumlah = $pengajuanPerKantor[$kode]['jumlah'] ?? 0;
+                            $nominal = $pengajuanPerKantor[$kode]['nominal'] ?? 0;
+                        @endphp
                         <div class="col">
                             <div class="card border-primary h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">{{ $kantorMap[$kode] ?? 'Tidak Dikenal' }}</h5>
+                                    <h5 class="card-title">{{ $namaKantor }}</h5>
                                     <p class="card-text mb-1">
-                                        Total Pengajuan: <strong>{{ $data['jumlah'] }}</strong>
+                                        Total Pengajuan: <strong>{{ $jumlah }}</strong>
                                     </p>
                                     <p class="card-text mb-0">
-                                        Total Nominal: <strong>Rp
-                                            {{ number_format($data['nominal'], 0, ',', '.') }}</strong>
+                                        Total Nominal: <strong>Rp {{ number_format($nominal, 0, ',', '.') }}</strong>
                                     </p>
                                 </div>
                             </div>
@@ -141,7 +150,7 @@
                     </tbody>
                 </table>
             </div>
-        </div> 
+        </div>
         <!-- Footer -->
         <footer style="background-color: #b8bfb8" class="mt-4 text-center small text-muted py-2 rounded">
             <div style="font-family: 'Times New Roman', Times, serif">
