@@ -255,7 +255,7 @@ class PayrollDepositoResource extends Resource
                             $bulan = date('m');
                             $tahun = date('Y');
 
-                            $tanggal = $tanggal_bayar . '-' . $bulan . '-' . $tahun;
+                            $tanggal = $tanggal_bayar . '_' . $bulan . '_' . $tahun;
                             $fileName = 'Budep_BIFast BRI_' . $tanggal . '.csv';
                             return Excel::download(new PayrollBIFASTBRIExport($records), $fileName);
                         }),
