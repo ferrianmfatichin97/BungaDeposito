@@ -18,7 +18,7 @@ class SendDepositoReminders extends Command
 
     public function handle()
     {
-        // Ambil hanya reminder yang aktif
+
         $reminders = DepositoReminder::where('aktif', 1)->get();
         Log::info('Memulai proses pengiriman reminder deposito', ['count' => $reminders->count()]);
 
@@ -157,40 +157,39 @@ class SendDepositoReminders extends Command
     }
 
 
-    /**
-     * Format pesan WhatsApp dengan monospace tabel
-     */
+
     private function formatMessageSummaryWA($depositos, $reminder)
-    {
-        $header = "```Selamat pagi, teman-teman CS,\n\n";
-        $header .= "Berikut data deposito yang akan jatuh tempo dalam {$reminder->hari_sebelum_jt} Hari ke depan:\n\n";
+{
+    $header = "```Selamat pagi, teman-teman CS,\n\n";
+    $header .= "Berikut data deposito yang akan jatuh tempo dalam {$reminder->hari_sebelum_jt} Hari ke depan:\n\n";
 
-        $tableHeader = "No | Nama Nasabah        | Rekening     | Nominal        | Jatuh Tempo | Jenis | Kantor Cabang\n";
-        $tableHeader .= "---|---------------------|--------------|----------------|-------------|-------|---------\n";
+    $tableHeader = "No | Nama Nasabah        | Rekening     | Nominal        | Jatuh Tempo | Jenis   | Kantor\n";
+    $tableHeader .= "---|---------------------|--------------|----------------|-------------|---------|----------------\n";
 
-        $rows = "";
-        $no = 1;
-        foreach ($depositos as $d) {
-            $rows .= sprintf(
-                "%-2d | %-19s | %-12s | Rp %-12s | %-11s | %-5s | %s\n",
-                $no++,
-                substr($d->nama_nasabah, 0, 19),
-                $d->no_rekening,
-                number_format($d->nominal, 0, ',', '.'),
-                date('d M y', strtotime($d->tanggal_jatuh_tempo)),
-                $d->jenis_rollover,
-                $d->kode_cabang
-            );
-        }
-
-        $footer = "\nMohon untuk:\n";
-        $footer .= "1. Follow-up nasabah terkait deposito tersebut.\n";
-        $footer .= "2. Mengisi status tindak lanjut pada link:\n";
-        $footer .= "- Akan dicairkan\n";
-        $footer .= "- Akan diperpanjang\n";
-        $footer .= "- Jika ada perubahan suku bunga, update di kolom.\n\n";
-        $footer .= "Terima kasih 🙏```";
-
-        return $header . $tableHeader . $rows . $footer;
+    $rows = "";
+    $no = 1;
+    foreach ($depositos as $d) {
+        $rows .= sprintf(
+            "%-2d | %-19s | %-12s | Rp %-14s | %-11s | %-7s | %s\n",
+            $no++,
+            substr($d->nama_nasabah, 0, 19),
+            $d->no_rekening,
+            number_format($d->nominal, 0, ',', '.'),
+            date('d M y', strtotime($d->tanggal_jatuh_tempo)),
+            $d->jenis_rollover,
+            $d->kantor //
+        );
     }
+
+    $footer = "\nMohon untuk:\n";
+    $footer .= "1. Follow-up nasabah terkait deposito tersebut.\n";
+    $footer .= "2. Mengisi status tindak lanjut pada link:\n";
+    $footer .= "- Akan dicairkan\n";
+    $footer .= "- Akan diperpanjang\n";
+    $footer .= "- Jika ada perubahan suku bunga, update di kolom.\n\n";
+    $footer .= "Terima kasih 🙏```";
+
+    return $header . $tableHeader . $rows . $footer;
+}
+
 }

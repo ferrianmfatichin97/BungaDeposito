@@ -22,6 +22,6 @@ class DepositoReminderMail extends Mailable
     public function build()
     {
         return $this->subject("Reminder Deposito Jatuh Tempo (H-{$this->reminder->hari_sebelum_jt})")
-                    ->view('emails.reminder-deposito');
+                    ->view('emails.deposito.reminder-deposito');
     }
 }

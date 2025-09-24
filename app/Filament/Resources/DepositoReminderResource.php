@@ -44,7 +44,7 @@ class DepositoReminderResource extends Resource
 
                 Forms\Components\TextInput::make('wa_tujuan')
                     ->label('Nomor WA Tujuan')
-                    ->maxLength(20)
+                    ->maxLength(100)
                     ->placeholder('6281234567890'),
 
                 Forms\Components\TextInput::make('hari_sebelum_jt')
