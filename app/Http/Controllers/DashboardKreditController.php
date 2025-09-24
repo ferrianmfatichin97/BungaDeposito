@@ -7,8 +7,12 @@ use Illuminate\Support\Carbon;
 
 class DashboardKreditController extends Controller
 {
+
+
     public function index()
     {
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '1G');
         $sql = "
             SELECT
                 data_kantor_master.kantor_sandi AS v_kantor1,

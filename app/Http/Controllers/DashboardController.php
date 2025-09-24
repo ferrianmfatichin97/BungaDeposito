@@ -188,6 +188,8 @@ class DashboardController extends Controller
     // function untuk menampilkan daftar deposito
     public function showDepositoList()
     {
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '1G');
         $dataDeposito = DB::connection('mysql_REMOTE')
             ->table('view_deposito')
             ->get();
@@ -246,6 +248,8 @@ class DashboardController extends Controller
     }
     public function showDepositoKredit()
     {
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '1G');
         $dataDeposito = DB::connection('mysql_REMOTE')
             ->table('view_deposito')
             ->get();
@@ -275,6 +279,8 @@ class DashboardController extends Controller
 
     public function showDepositoTabungan()
     {
+        ini_set('max_execution_time', 300);
+        ini_set('memory_limit', '1G');
         $dataDeposito = DB::connection('mysql_REMOTE')
             ->table('view_deposito')
             ->get();
@@ -329,6 +335,7 @@ class DashboardController extends Controller
 
     public function showPengajuanHariIni()
     {
+
         $today = now()->toDateString();
         $dataDeposito = DB::connection('mysql_REMOTE')
             ->table('view_deposito')

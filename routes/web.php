@@ -11,6 +11,10 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
+Route::get('/phpinfo', function() {
+    phpinfo();
+});
+
 Route::prefix('deposito')->name('deposito.')->group(function () {
     Route::get('/list', [DashboardController::class, 'showDepositoList'])->name('list');
     Route::get('/kredit', [DashboardController::class, 'showDepositoKredit'])->name('kredit');
