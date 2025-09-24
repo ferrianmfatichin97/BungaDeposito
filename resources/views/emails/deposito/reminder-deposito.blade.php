@@ -48,7 +48,7 @@
                 <td>Rp {{ number_format($d->nominal, 0, ',', '.') }}</td>
                 <td>{{ \Carbon\Carbon::parse($d->tanggal_jatuh_tempo)->format('d M y') }}</td>
                 <td>{{ $d->jenis_rollover }}</td>
-                <td>{{ $d->kode_cabang }}</td>
+                <td>{{ $d->kantor }}</td>
             </tr>
             @endforeach
         </tbody>
