@@ -10,5 +10,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote')->hourly();
 
 
-Schedule::command('reminder:deposito')->dailyAt('10:02');
+Schedule::command('reminder:deposito')->dailyAt('10:47');
 // Schedule::command('wa:deposito-rekap --hari=7 --kodeCabang=00')->dailyAt('16::22');

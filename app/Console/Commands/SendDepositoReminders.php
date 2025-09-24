@@ -23,20 +23,10 @@ class SendDepositoReminders extends Command
         Log::info('Memulai proses pengiriman reminder deposito', ['count' => $reminders->count()]);
 
         foreach ($reminders as $reminder) {
-            // Validasi interval hari
             if (empty($reminder->hari_sebelum_jt)) {
                 Log::warning("Reminder ID {$reminder->id} dilewati karena hari_sebelum_jt kosong");
                 continue;
             }
-
-            // Debug: log detail reminder yang sedang diproses
-            Log::info('Proses reminder', [
-                'id' => $reminder->id,
-                'kode_cabang' => $reminder->kode_cabang ?? null,
-                'email_tujuan' => $reminder->email_tujuan,
-                'wa_tujuan' => $reminder->wa_tujuan,
-                'hari_sebelum_jt' => $reminder->hari_sebelum_jt,
-            ]);
 
             $depositos = collect($this->ambilDeposito($reminder));
 
@@ -47,7 +37,7 @@ class SendDepositoReminders extends Command
 
             Log::info("Ditemukan {$depositos->count()} deposito untuk reminder ID {$reminder->id}");
 
-            // --- Kirim Email (satu email berisi daftar) ---
+            // --- Kirim Email ---
             if ($reminder->email_tujuan) {
                 try {
                     Mail::to($reminder->email_tujuan)
@@ -56,19 +46,8 @@ class SendDepositoReminders extends Command
                     $this->info("Email terkirim ke {$reminder->email_tujuan}");
                     Log::info("Email sukses dikirim ke {$reminder->email_tujuan}", [
                         'reminder_id' => $reminder->id,
-                        'count' => $depositos->count(),
+                        'count'       => $depositos->count(),
                     ]);
-
-                    foreach ($depositos as $deposito) {
-                        Log::info('EMAIL Reminder Deposito', [
-                            'email_tujuan' => $reminder->email_tujuan,
-                            'rekening'     => $deposito->no_rekening,
-                            'nama'         => $deposito->nama_nasabah,
-                            'nominal'      => $deposito->nominal,
-                            'jatuh_tempo'  => $deposito->tanggal_jatuh_tempo,
-                            'jenis'        => $deposito->jenis_rollover,
-                        ]);
-                    }
                 } catch (\Exception $e) {
                     $this->error("Error Email: " . $e->getMessage());
                     Log::error('Email gagal dikirim', [
@@ -78,52 +57,39 @@ class SendDepositoReminders extends Command
                 }
             }
 
-            // --- Kirim WA (satu pesan per rekening; bisa diubah jadi summary jika mau) ---
+            // --- Kirim WhatsApp ---
             if ($reminder->wa_tujuan) {
-                foreach ($depositos as $deposito) {
-                    $message = $reminder->message_template
-                        ? $this->parseMessage($reminder->message_template, $deposito)
-                        : "Reminder Deposito:\n" .
-                        "Nama: {$deposito->nama_nasabah}\n" .
-                        "Rekening: {$deposito->no_rekening}\n" .
-                        "Nominal: " . number_format($deposito->nominal, 0, ',', '.') . "\n" .
-                        "Jatuh Tempo: {$deposito->tanggal_jatuh_tempo}\n" .
-                        "Jenis: {$deposito->jenis_rollover}";
+                $message = $this->formatMessageSummaryWA($depositos, $reminder);
 
-                    try {
-                        $response = Http::withHeaders([
-                            'Authorization' => config('services.fonnte.token'),
-                        ])->asMultipart()->post('https://api.fonnte.com/send', [
-                            'target'      => $reminder->wa_tujuan,
-                            'message'     => $message,
-                            'countryCode' => '62',
-                        ]);
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => config('services.fonnte.token'),
+                    ])->asMultipart()->post('https://api.fonnte.com/send', [
+                        'target'      => $reminder->wa_tujuan,
+                        'message'     => $message,
+                        'countryCode' => '62',
+                    ]);
 
-                        if ($response->successful()) {
-                            $this->info("WA terkirim ke {$reminder->wa_tujuan}");
-                            Log::info('WA Reminder Deposito', [
-                                'wa_tujuan'   => $reminder->wa_tujuan,
-                                'rekening'    => $deposito->no_rekening,
-                                'nama'        => $deposito->nama_nasabah,
-                                'nominal'     => $deposito->nominal,
-                                'jatuh_tempo' => $deposito->tanggal_jatuh_tempo,
-                                'jenis'       => $deposito->jenis_rollover,
-                                'response'    => $response->body(),
-                            ]);
-                        } else {
-                            $this->error("Gagal kirim WA: " . $response->body());
-                            Log::error('WA gagal dikirim', [
-                                'wa_tujuan' => $reminder->wa_tujuan,
-                                'response'  => $response->body(),
-                            ]);
-                        }
-                    } catch (\Exception $e) {
-                        $this->error("Error WA: " . $e->getMessage());
-                        Log::error('WA Exception', [
+                    if ($response->successful()) {
+                        $this->info("WA terkirim ke {$reminder->wa_tujuan}");
+                        Log::info('WA Reminder Deposito (summary)', [
                             'wa_tujuan' => $reminder->wa_tujuan,
-                            'error'     => $e->getMessage(),
+                            'count'     => $depositos->count(),
+                            'response'  => $response->body(),
+                        ]);
+                    } else {
+                        $this->error("Gagal kirim WA: " . $response->body());
+                        Log::error('WA gagal dikirim (summary)', [
+                            'wa_tujuan' => $reminder->wa_tujuan,
+                            'response'  => $response->body(),
                         ]);
                     }
+                } catch (\Exception $e) {
+                    $this->error("Error WA: " . $e->getMessage());
+                    Log::error('WA Exception (summary)', [
+                        'wa_tujuan' => $reminder->wa_tujuan,
+                        'error'     => $e->getMessage(),
+                    ]);
                 }
             }
         }
@@ -132,18 +98,14 @@ class SendDepositoReminders extends Command
     }
 
     /**
-     *
-     *
-     * @param \App\Models\DepositoReminder $reminder
-     * @return array
+     * Ambil data deposito dari DB remote
      */
+    private function ambilDeposito($reminder)
+    {
+        $hari = (int) $reminder->hari_sebelum_jt;
+        $kodeCabang = $reminder->kode_cabang;
 
-private function ambilDeposito($reminder)
-{
-    $hari = (int) $reminder->hari_sebelum_jt;
-    $kodeCabang = $reminder->kode_cabang;
-
-    $sql = "
+        $sql = "
         SELECT
             d.dep_rekening AS no_rekening,
             n.nasabah_nama_lengkap AS nama_nasabah,
@@ -161,7 +123,18 @@ private function ambilDeposito($reminder)
             END AS jenis_rollover,
             d.dep_jkw AS jangka_waktu,
             d.dep_tabungan AS norek_tabungan,
-            k.kantor_kode AS kode_cabang
+            CASE k.kantor_kode
+                WHEN '00' THEN 'KPM'
+                WHEN '01' THEN 'KC KPO'
+                WHEN '02' THEN 'KC BOGOR'
+                WHEN '03' THEN 'KC DEPOK'
+                WHEN '04' THEN 'KC TANGERANG'
+                WHEN '05' THEN 'KC JAKARTA TIMUR'
+                WHEN '06' THEN 'KC KARAWANG'
+                WHEN '07' THEN 'KC CIKARANG'
+                WHEN '08' THEN 'KC PURWOKERTO'
+                ELSE k.kantor_kode
+            END AS kantor
         FROM data_deposito_master d
         JOIN data_nasabah_master n
           ON d.dep_nasabah = n.nasabah_id
@@ -174,28 +147,50 @@ private function ambilDeposito($reminder)
           AND DATE(d.dep_tgl_jthtempo) = DATE_ADD(CURDATE(), INTERVAL {$hari} DAY)
     ";
 
-    // Jika kode cabang tidak "00", tambahkan filter cabang
-    if (!empty($kodeCabang) && $kodeCabang !== '00') {
-        $sql .= " AND k.kantor_kode = '{$kodeCabang}'";
+        if (!empty($kodeCabang) && $kodeCabang !== '00') {
+            $sql .= " AND k.kantor_kode = '{$kodeCabang}'";
+        }
+
+        $sql .= " ORDER BY d.dep_tgl_jthtempo";
+
+        return DB::connection('mysql_REMOTE')->select($sql);
     }
 
-    $sql .= " ORDER BY d.dep_tgl_jthtempo";
 
-    return DB::connection('mysql_REMOTE')->select($sql);
-}
-
-
-
-    private function parseMessage($template, $deposito)
+    /**
+     * Format pesan WhatsApp dengan monospace tabel
+     */
+    private function formatMessageSummaryWA($depositos, $reminder)
     {
-        $replace = [
-            '{nama}'     => $deposito->nama_nasabah,
-            '{rekening}' => $deposito->no_rekening,
-            '{nominal}'  => number_format($deposito->nominal, 0, ',', '.'),
-            '{jtempo}'   => $deposito->tanggal_jatuh_tempo,
-            '{jenis}'    => $deposito->jenis_rollover,
-        ];
+        $header = "```Selamat pagi, teman-teman CS,\n\n";
+        $header .= "Berikut data deposito yang akan jatuh tempo dalam {$reminder->hari_sebelum_jt} Hari ke depan:\n\n";
 
-        return str_replace(array_keys($replace), array_values($replace), $template);
+        $tableHeader = "No | Nama Nasabah        | Rekening     | Nominal        | Jatuh Tempo | Jenis | Kantor Cabang\n";
+        $tableHeader .= "---|---------------------|--------------|----------------|-------------|-------|---------\n";
+
+        $rows = "";
+        $no = 1;
+        foreach ($depositos as $d) {
+            $rows .= sprintf(
+                "%-2d | %-19s | %-12s | Rp %-12s | %-11s | %-5s | %s\n",
+                $no++,
+                substr($d->nama_nasabah, 0, 19),
+                $d->no_rekening,
+                number_format($d->nominal, 0, ',', '.'),
+                date('d M y', strtotime($d->tanggal_jatuh_tempo)),
+                $d->jenis_rollover,
+                $d->kode_cabang
+            );
+        }
+
+        $footer = "\nMohon untuk:\n";
+        $footer .= "1. Follow-up nasabah terkait deposito tersebut.\n";
+        $footer .= "2. Mengisi status tindak lanjut pada link:\n";
+        $footer .= "- Akan dicairkan\n";
+        $footer .= "- Akan diperpanjang\n";
+        $footer .= "- Jika ada perubahan suku bunga, update di kolom.\n\n";
+        $footer .= "Terima kasih 🙏```";
+
+        return $header . $tableHeader . $rows . $footer;
     }
 }
