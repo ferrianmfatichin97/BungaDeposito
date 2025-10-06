@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Models\DepositoReminder;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
+use Carbon\Carbon;
 
 class SendDepositoReminders extends Command
 {
@@ -158,35 +159,47 @@ class SendDepositoReminders extends Command
 
 
 
-    private function formatMessageSummaryWA($depositos, $reminder)
-{
-    $header = "```Selamat pagi, teman-teman CS,\n\n";
-    $header .= "Berikut data deposito yang akan jatuh tempo dalam {$reminder->hari_sebelum_jt} Hari ke depan:\n\n";
 
+
+private function formatMessageSummaryWA($depositos, $reminder)
+{
+    $header = "```Selamat pagi, teman-teman Bank DP Taspen,\n\n";
+
+    if ($depositos->isNotEmpty()) {
+        // Ambil tanggal jatuh tempo (semua data pasti sama tanggalnya)
+        $tanggalJatuhTempo = Carbon::parse($depositos->first()->tanggal_jatuh_tempo)
+            ->locale('id')
+            ->translatedFormat('d F Y');
+
+        $header .= "Berikut data deposito yang akan jatuh tempo pada tanggal {$tanggalJatuhTempo}:\n\n";
+    } else {
+        $header .= "Berikut data deposito yang akan jatuh tempo:\n\n";
+    }
+
+    // Header tabel
     $tableHeader = "No | Nama Nasabah        | Rekening     | Nominal        | Jatuh Tempo | Jenis   | Kantor\n";
     $tableHeader .= "---|---------------------|--------------|----------------|-------------|---------|----------------\n";
 
+    // Isi tabel
     $rows = "";
     $no = 1;
     foreach ($depositos as $d) {
         $rows .= sprintf(
             "%-2d | %-19s | %-12s | Rp %-14s | %-11s | %-7s | %s\n",
             $no++,
+
             substr($d->nama_nasabah, 0, 19),
             $d->no_rekening,
             number_format($d->nominal, 0, ',', '.'),
-            date('d M y', strtotime($d->tanggal_jatuh_tempo)),
+            Carbon::parse($d->tanggal_jatuh_tempo)->translatedFormat('d M y'),
             $d->jenis_rollover,
-            $d->kantor //
+            $d->kantor
         );
     }
 
+    // Footer pesan
     $footer = "\nMohon untuk:\n";
-    $footer .= "1. Follow-up nasabah terkait deposito tersebut.\n";
-    $footer .= "2. Mengisi status tindak lanjut pada link:\n";
-    $footer .= "- Akan dicairkan\n";
-    $footer .= "- Akan diperpanjang\n";
-    $footer .= "- Jika ada perubahan suku bunga, update di kolom.\n\n";
+    $footer .= "Follow-up nasabah terkait deposito tersebut.\n";
     $footer .= "Terima kasih 🙏```";
 
     return $header . $tableHeader . $rows . $footer;
