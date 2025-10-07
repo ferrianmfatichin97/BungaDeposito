@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\DepositoReminder;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Carbon\Carbon;
+use App\Models\ReminderLog;
 
 class SendDepositoReminders extends Command
 {
@@ -44,12 +45,33 @@ class SendDepositoReminders extends Command
                     Mail::to($reminder->email_tujuan)
                         ->send(new DepositoReminderMail($depositos, $reminder));
 
+                    ReminderLog::create([
+                        'reminder_id' => $reminder->id,
+                        'kode_cabang' => $reminder->kode_cabang,
+                        'channel'     => 'email',
+                        'tujuan'      => $reminder->email_tujuan,
+                        'status'      => 'success',
+                        'count'       => $depositos->count(),
+                        'message'     => 'Email reminder deposito',
+                        'response'    => 'Email sent successfully',
+                    ]);
+
+
                     $this->info("Email terkirim ke {$reminder->email_tujuan}");
                     Log::info("Email sukses dikirim ke {$reminder->email_tujuan}", [
                         'reminder_id' => $reminder->id,
                         'count'       => $depositos->count(),
                     ]);
                 } catch (\Exception $e) {
+                    ReminderLog::create([
+                        'reminder_id' => $reminder->id,
+                        'channel'     => 'email',
+                        'tujuan'      => $reminder->email_tujuan,
+                        'status'      => 'failed',
+                        'message'     => 'Email gagal dikirim',
+                        'response'    => $e->getMessage(),
+                    ]);
+
                     $this->error("Error Email: " . $e->getMessage());
                     Log::error('Email gagal dikirim', [
                         'email_tujuan' => $reminder->email_tujuan,
@@ -71,6 +93,20 @@ class SendDepositoReminders extends Command
                         'countryCode' => '62',
                     ]);
 
+                    $status = $response->successful() ? 'success' : 'failed';
+
+                    ReminderLog::create([
+                        'reminder_id' => $reminder->id,
+                        'kode_cabang' => $reminder->kode_cabang,
+                        'channel'     => 'wa',
+                        'tujuan'      => $reminder->wa_tujuan,
+                        'status'      => $response->successful() ? 'success' : 'failed',
+                        'count'       => $depositos->count(),
+                        'message'     => 'WA Reminder Deposito',
+                        'response'    => $response->body(),
+                    ]);
+
+
                     if ($response->successful()) {
                         $this->info("WA terkirim ke {$reminder->wa_tujuan}");
                         Log::info('WA Reminder Deposito (summary)', [
@@ -86,6 +122,15 @@ class SendDepositoReminders extends Command
                         ]);
                     }
                 } catch (\Exception $e) {
+                    ReminderLog::create([
+                        'reminder_id' => $reminder->id,
+                        'channel'     => 'wa',
+                        'tujuan'      => $reminder->wa_tujuan,
+                        'status'      => 'failed',
+                        'message'     => 'WA Exception',
+                        'response'    => $e->getMessage(),
+                    ]);
+
                     $this->error("Error WA: " . $e->getMessage());
                     Log::error('WA Exception (summary)', [
                         'wa_tujuan' => $reminder->wa_tujuan,
@@ -161,48 +206,47 @@ class SendDepositoReminders extends Command
 
 
 
-private function formatMessageSummaryWA($depositos, $reminder)
-{
-    $header = "```Selamat pagi, teman-teman Bank DP Taspen,\n\n";
+    private function formatMessageSummaryWA($depositos, $reminder)
+    {
+        $header = "```Selamat pagi, teman-teman Bank DP Taspen,\n\n";
 
-    if ($depositos->isNotEmpty()) {
-        // Ambil tanggal jatuh tempo (semua data pasti sama tanggalnya)
-        $tanggalJatuhTempo = Carbon::parse($depositos->first()->tanggal_jatuh_tempo)
-            ->locale('id')
-            ->translatedFormat('d F Y');
+        if ($depositos->isNotEmpty()) {
+            // Ambil tanggal jatuh tempo (semua data pasti sama tanggalnya)
+            $tanggalJatuhTempo = Carbon::parse($depositos->first()->tanggal_jatuh_tempo)
+                ->locale('id')
+                ->translatedFormat('d F Y');
 
-        $header .= "Berikut data deposito yang akan jatuh tempo pada tanggal {$tanggalJatuhTempo}:\n\n";
-    } else {
-        $header .= "Berikut data deposito yang akan jatuh tempo:\n\n";
+            $header .= "Berikut data deposito yang akan jatuh tempo pada tanggal {$tanggalJatuhTempo}:\n\n";
+        } else {
+            $header .= "Berikut data deposito yang akan jatuh tempo:\n\n";
+        }
+
+        // Header tabel
+        $tableHeader = "No | Nama Nasabah        | Rekening     | Nominal        | Jatuh Tempo | Jenis   | Kantor\n";
+        $tableHeader .= "---|---------------------|--------------|----------------|-------------|---------|----------------\n";
+
+        // Isi tabel
+        $rows = "";
+        $no = 1;
+        foreach ($depositos as $d) {
+            $rows .= sprintf(
+                "%-2d | %-19s | %-12s | Rp %-14s | %-11s | %-7s | %s\n",
+                $no++,
+
+                substr($d->nama_nasabah, 0, 19),
+                $d->no_rekening,
+                number_format($d->nominal, 0, ',', '.'),
+                Carbon::parse($d->tanggal_jatuh_tempo)->translatedFormat('d M y'),
+                $d->jenis_rollover,
+                $d->kantor
+            );
+        }
+
+        // Footer pesan
+        $footer = "\nMohon untuk:\n";
+        $footer .= "Follow-up nasabah terkait deposito tersebut.\n";
+        $footer .= "Terima kasih 🙏```";
+
+        return $header . $tableHeader . $rows . $footer;
     }
-
-    // Header tabel
-    $tableHeader = "No | Nama Nasabah        | Rekening     | Nominal        | Jatuh Tempo | Jenis   | Kantor\n";
-    $tableHeader .= "---|---------------------|--------------|----------------|-------------|---------|----------------\n";
-
-    // Isi tabel
-    $rows = "";
-    $no = 1;
-    foreach ($depositos as $d) {
-        $rows .= sprintf(
-            "%-2d | %-19s | %-12s | Rp %-14s | %-11s | %-7s | %s\n",
-            $no++,
-
-            substr($d->nama_nasabah, 0, 19),
-            $d->no_rekening,
-            number_format($d->nominal, 0, ',', '.'),
-            Carbon::parse($d->tanggal_jatuh_tempo)->translatedFormat('d M y'),
-            $d->jenis_rollover,
-            $d->kantor
-        );
-    }
-
-    // Footer pesan
-    $footer = "\nMohon untuk:\n";
-    $footer .= "Follow-up nasabah terkait deposito tersebut.\n";
-    $footer .= "Terima kasih 🙏```";
-
-    return $header . $tableHeader . $rows . $footer;
-}
-
 }
