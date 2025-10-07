@@ -86,6 +86,7 @@ class DepositoReminderResource extends Resource
                 Tables\Columns\IconColumn::make('aktif')->boolean()->label('Aktif'),
                 Tables\Columns\TextColumn::make('updated_at')->dateTime()->label('Update Terakhir'),
             ])
+            ->defaultSort('updated_at', 'desc')
             ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
