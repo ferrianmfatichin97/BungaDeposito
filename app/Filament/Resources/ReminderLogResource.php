@@ -13,8 +13,8 @@ class ReminderLogResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
      protected static ?string $navigationGroup = 'Setting Reminder';
     protected static ?int $navigationSort = 3;
-    protected static ?string $navigationLabel = 'Reminder Logs';
-    protected static ?string $pluralModelLabel = 'Reminder Logs';
+    protected static ?string $navigationLabel = 'Reminder History';
+    protected static ?string $pluralModelLabel = 'Reminder History';
 
     public static function table(Tables\Table $table): Tables\Table
     {
