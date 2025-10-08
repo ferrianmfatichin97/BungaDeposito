@@ -57,13 +57,6 @@
     <p>Mohon untuk:</p>
     <ol>
         <li>Melakukan follow-up kepada nasabah terkait deposito yang bersangkutan.</li>
-        <li>Mengisi status tindak lanjut pada link, apakah:
-            <ul>
-                <li>Akan dicairkan</li>
-                <li>Akan diperpanjang</li>
-                <li>Jika ada perubahan suku bunga terbaru, mohon diupdate juga di kolom yang tersedia.</li>
-            </ul>
-        </li>
     </ol>
 
     <p>Terima kasih atas kerja samanya 🙏</p>
